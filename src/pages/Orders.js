@@ -116,7 +116,7 @@ export default function Orders() {
                 <tbody>
                   {orders.map(o => (
                     <tr key={o._id}>
-                      <td><code style={{ fontSize:'0.78rem', color:'var(--gold)', background:'rgba(201,169,110,0.08)', padding:'2px 6px', borderRadius:4 }}>{o.orderId}</code></td>
+                      <td><code style={{ fontSize:'0.78rem', color:'var(--gold-dark)', background:'rgba(157,110,42,0.08)', padding:'2px 6px', borderRadius:4 }}>{o.orderId}</code></td>
                       <td>{o.customerId}</td>
                       <td>{o.productId}</td>
                       <td className="cell-primary">{o.quantity}</td>

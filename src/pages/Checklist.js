@@ -47,9 +47,9 @@ export default function Checklist() {
   const overallProgress = data ? Math.round((data.totalCompleted / data.total) * 100) : 0;
 
   const PHASE_COLORS = [
-    'var(--accent-rose)', 'var(--accent-slate)', 'var(--gold)',
+    'var(--accent-rose)', 'var(--accent-slate)', 'var(--gold-dark)',
     'var(--accent-sage)', 'var(--accent-rose)', 'var(--accent-slate)',
-    'var(--gold)', 'var(--accent-sage)', 'var(--accent-rose)', 'var(--gold)'
+    'var(--gold-dark)', 'var(--accent-sage)', 'var(--accent-rose)', 'var(--gold-dark)'
   ];
 
   return (
@@ -87,7 +87,7 @@ export default function Checklist() {
                   <h3 style={{ fontFamily:'var(--font-display)', fontSize:'1.1rem', color:'var(--text-primary)' }}>Overall Progress</h3>
                   <p style={{ fontSize:'0.8rem', color:'var(--text-muted)', marginTop:2 }}>{data.totalCompleted} of {data.total} tasks completed</p>
                 </div>
-                <div style={{ fontFamily:'var(--font-display)', fontSize:'2.5rem', color:'var(--gold)', lineHeight:1 }}>
+                <div style={{ fontFamily:'var(--font-display)', fontSize:'2.5rem', color:'var(--gold-dark)', lineHeight:1 }}>
                   {overallProgress}<span style={{ fontSize:'1rem', color:'var(--text-muted)' }}>%</span>
                 </div>
               </div>

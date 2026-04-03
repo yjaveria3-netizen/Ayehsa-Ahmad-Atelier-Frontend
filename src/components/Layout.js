@@ -4,13 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 const NAV_ITEMS = [
-  { to: '/dashboard', icon: '◈', label: 'Dashboard' },
-  { to: '/products', icon: '◆', label: 'Products' },
-  { to: '/orders', icon: '◇', label: 'Orders' },
+  { to: '/dashboard', icon: '⊞', label: 'Dashboard' },
+  { to: '/products', icon: '▪', label: 'Products' },
+  { to: '/orders', icon: '▫', label: 'Orders' },
   { to: '/customers', icon: '○', label: 'Customers' },
-  { to: '/financial', icon: '◉', label: 'Financial' },
-  { to: '/checklist', icon: '☐', label: 'Launch Checklist' },
-  { to: '/drive-setup', icon: '⊞', label: 'Drive Setup' },
+  { to: '/financial', icon: '$', label: 'Financial' },
+  { to: '/checklist', icon: '✓', label: 'Launch Checklist' },
+  { to: '/drive-setup', icon: '↑', label: 'Drive Setup' },
 ];
 
 export default function Layout() {
@@ -26,15 +26,13 @@ export default function Layout() {
 
   return (
     <div className="app-layout">
-      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:99 }}
+          style={{ position:'fixed', inset:0, background:'rgba(28,20,10,0.4)', zIndex:99 }}
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
       <nav className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-logo">
           <div className="brand-name">Ayesha Ahmad<br />Atelier</div>
@@ -67,11 +65,11 @@ export default function Layout() {
                 <div className="user-name">{user.name}</div>
                 <div className="user-email">{user.email}</div>
               </div>
-              <button className="logout-btn" onClick={handleLogout} title="Logout">⏻</button>
+              <button className="logout-btn" onClick={handleLogout} title="Log out">&#x23FB;</button>
             </div>
           )}
           {user?.driveConnected && (
-            <div style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 12px', fontSize:'0.72rem', color:'var(--text-muted)' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 12px', fontSize:'0.7rem', color:'var(--text-muted)', marginTop:6 }}>
               <span className="sync-dot" />
               Drive connected
             </div>
@@ -79,11 +77,12 @@ export default function Layout() {
         </div>
       </nav>
 
-      {/* Main */}
       <main className="main-content">
-        {/* Mobile header */}
         <div style={{ display:'none' }} className="mobile-header">
-          <button onClick={() => setSidebarOpen(true)} style={{ background:'none', color:'var(--text-primary)', fontSize:'1.25rem', padding:'16px' }}>☰</button>
+          <button onClick={() => setSidebarOpen(true)} style={{ background:'none', color:'var(--text-primary)', fontSize:'1.1rem', padding:'4px 8px', border:'1px solid var(--border)', borderRadius:'6px' }}>
+            Menu
+          </button>
+          <span style={{ fontFamily:'var(--font-display)', fontSize:'1rem', color:'var(--gold-dark)', marginLeft:12 }}>Ayesha Ahmad Atelier</span>
         </div>
 
         <Outlet />

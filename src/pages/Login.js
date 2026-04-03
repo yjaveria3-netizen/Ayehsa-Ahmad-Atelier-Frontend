@@ -27,13 +27,13 @@ export default function Login() {
       {/* Background texture */}
       <div style={{
         position: 'absolute', inset: 0,
-        backgroundImage: 'radial-gradient(ellipse at 20% 50%, rgba(201,169,110,0.05) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(196,119,138,0.04) 0%, transparent 50%)',
+        backgroundImage: 'radial-gradient(ellipse at 20% 50%, rgba(157,110,42,0.06) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(168,68,90,0.04) 0%, transparent 50%)',
         pointerEvents: 'none',
       }} />
       <div style={{
         position: 'absolute',
         top: 0, left: 0, right: 0, bottom: 0,
-        backgroundImage: 'linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px)',
         backgroundSize: '60px 60px',
         pointerEvents: 'none',
       }} />
@@ -47,9 +47,9 @@ export default function Login() {
             background: 'linear-gradient(135deg, var(--gold-dark), var(--gold))',
             borderRadius: '50%',
             marginBottom: '24px',
-            boxShadow: '0 0 40px rgba(201,169,110,0.25)',
+            boxShadow: '0 0 32px rgba(157,110,42,0.2)',
           }}>
-            <span style={{ fontSize: '1.75rem', filter: 'brightness(0)' }}>✦</span>
+            <span style={{ fontSize: '1.75rem', filter: 'brightness(10)' }}>✦</span>
           </div>
           <h1 style={{
             fontFamily: 'var(--font-display)',
@@ -61,7 +61,7 @@ export default function Login() {
             marginBottom: '8px',
           }}>
             Ayesha Ahmad<br />
-            <em style={{ fontStyle: 'italic', color: 'var(--gold)' }}>Atelier</em>
+            <em style={{ fontStyle: 'italic', color: 'var(--gold-dark)' }}>Atelier</em>
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
             Business Management Suite
@@ -70,11 +70,11 @@ export default function Login() {
 
         {/* Card */}
         <div style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-light)',
+          background: '#ffffff',
+          border: '1px solid var(--border)',
           borderRadius: '12px',
           padding: '40px',
-          boxShadow: 'var(--shadow-lg)',
+          boxShadow: '0 4px 32px rgba(0,0,0,0.08)',
         }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', color: 'var(--text-primary)', marginBottom: '8px' }}>
             Welcome back
@@ -93,9 +93,9 @@ export default function Login() {
             Continue with Google
           </button>
 
-          <div style={{ marginTop: '24px', padding: '16px', background: 'rgba(201,169,110,0.05)', border: '1px solid rgba(201,169,110,0.1)', borderRadius: '6px' }}>
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-              <span style={{ color: 'var(--gold)' }}>✦ </span>
+          <div style={{ marginTop: '24px', padding: '16px', background: 'rgba(157,110,42,0.05)', border: '1px solid rgba(157,110,42,0.15)', borderRadius: '6px' }}>
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+              <span style={{ color: 'var(--gold-dark)' }}>✦ </span>
               We'll request access to your Google Drive & Sheets to sync your business data automatically.
             </p>
           </div>

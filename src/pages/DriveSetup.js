@@ -82,7 +82,7 @@ export default function DriveSetup() {
 
             {driveStatus?.connected ? (
               <div>
-                <div style={{ display:'flex', alignItems:'center', gap:10, padding:'14px 18px', background:'rgba(90,158,122,0.08)', border:'1px solid rgba(90,158,122,0.2)', borderRadius:'var(--radius)', marginBottom:20 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:10, padding:'14px 18px', background:'rgba(46,125,82,0.06)', border:'1px solid rgba(46,125,82,0.2)', borderRadius:'var(--radius)', marginBottom:20 }}>
                   <span style={{ fontSize:'1.25rem' }}>✓</span>
                   <div>
                     <div style={{ fontSize:'0.875rem', color:'var(--success)', fontWeight:500 }}>Drive Connected!</div>
@@ -155,7 +155,7 @@ export default function DriveSetup() {
                 { n:5, text:'Paste the link above and click Connect' },
               ].map(step => (
                 <div key={step.n} style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
-                  <div style={{ width:24, height:24, borderRadius:'50%', background:'rgba(201,169,110,0.15)', border:'1px solid rgba(201,169,110,0.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.72rem', color:'var(--gold)', flexShrink:0, marginTop:1 }}>
+                  <div style={{ width:24, height:24, borderRadius:'50%', background:'rgba(157,110,42,0.1)', border:'1px solid rgba(157,110,42,0.25)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.72rem', color:'var(--gold-dark)', flexShrink:0, marginTop:1 }}>
                     {step.n}
                   </div>
                   <p style={{ fontSize:'0.875rem', color:'var(--text-secondary)', lineHeight:1.5 }}>{step.text}</p>
@@ -163,10 +163,10 @@ export default function DriveSetup() {
               ))}
             </div>
 
-            <div style={{ marginTop:20, padding:'14px', background:'rgba(201,169,110,0.05)', border:'1px solid rgba(201,169,110,0.1)', borderRadius:'var(--radius)' }}>
-              <p style={{ fontSize:'0.78rem', color:'var(--text-muted)', lineHeight:1.6 }}>
-                <span style={{ color:'var(--gold)' }}>✦ </span>
-                We'll automatically find your <strong style={{ color:'var(--text-secondary)' }}>Database</strong> subfolder and create/connect spreadsheets for Products, Orders, Customers, and Financial data.
+            <div style={{ marginTop:20, padding:'14px', background:'rgba(157,110,42,0.04)', border:'1px solid rgba(157,110,42,0.12)', borderRadius:'var(--radius)' }}>
+              <p style={{ fontSize:'0.78rem', color:'var(--text-secondary)', lineHeight:1.6 }}>
+                <span style={{ color:'var(--gold-dark)' }}>✦ </span>
+                We'll automatically find your <strong style={{ color:'var(--text-primary)' }}>Database</strong> subfolder and create/connect spreadsheets for Products, Orders, Customers, and Financial data.
               </p>
             </div>
           </div>

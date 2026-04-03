@@ -42,12 +42,12 @@ export default function Dashboard() {
           <div>
             <h1 className="page-title">
               Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'},{' '}
-              <em style={{ fontStyle:'italic', color:'var(--gold)' }}>{user?.name?.split(' ')[0]}</em>
+              <em style={{ fontStyle:'italic', color:'var(--gold-dark)' }}>{user?.name?.split(' ')[0]}</em>
             </h1>
             <p className="page-subtitle">Here's what's happening with your atelier today.</p>
           </div>
           {user?.driveConnected ? (
-            <div style={{ display:'flex', alignItems:'center', gap:8, fontSize:'0.8rem', color:'var(--text-muted)', padding:'6px 14px', background:'rgba(90,158,122,0.08)', border:'1px solid rgba(90,158,122,0.2)', borderRadius:'99px' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8, fontSize:'0.8rem', color:'var(--success)', padding:'6px 14px', background:'rgba(46,125,82,0.06)', border:'1px solid rgba(46,125,82,0.2)', borderRadius:'99px' }}>
               <span className="sync-dot" /> Syncing to Google Sheets
             </div>
           ) : (
@@ -123,7 +123,7 @@ export default function Dashboard() {
                   display:'flex', alignItems:'center', gap:16, transition:'all 0.2s',
                   width:'100%',
                 }}>
-                  <div style={{ width:40, height:40, borderRadius:'var(--radius)', background:'rgba(201,169,110,0.1)', border:'1px solid rgba(201,169,110,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.1rem', color:'var(--gold)', flexShrink:0 }}>
+                  <div style={{ width:40, height:40, borderRadius:'var(--radius)', background:'rgba(157,110,42,0.08)', border:'1px solid rgba(157,110,42,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.1rem', color:'var(--gold-dark)', flexShrink:0 }}>
                     {item.icon}
                   </div>
                   <div>
@@ -140,9 +140,9 @@ export default function Dashboard() {
                 <h3 className="card-title">Payment Methods Breakdown</h3>
                 <div style={{ display:'flex', flexWrap:'wrap', gap:12 }}>
                   {stats.financial.byMethod.map(m => (
-                    <div key={m._id} style={{ flex:'1 1 140px', padding:'14px 16px', background:'var(--bg-secondary)', border:'1px solid var(--border)', borderRadius:'var(--radius)' }}>
+                    <div style={{ flex:'1 1 140px', padding:'14px 16px', background:'var(--bg-secondary)', border:'1px solid var(--border)', borderRadius:'var(--radius)' }}>
                       <div style={{ fontSize:'0.75rem', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>{m._id}</div>
-                      <div style={{ fontFamily:'var(--font-display)', fontSize:'1.25rem', color:'var(--gold)' }}>{m.count}</div>
+                      <div style={{ fontFamily:'var(--font-display)', fontSize:'1.25rem', color:'var(--gold-dark)' }}>{m.count}</div>
                       <div style={{ fontSize:'0.78rem', color:'var(--text-secondary)' }}>{formatPKR(m.total)}</div>
                     </div>
                   ))}
