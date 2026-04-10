@@ -7,9 +7,15 @@ import toast from 'react-hot-toast';
 export default function DriveSetup() {
   const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ driveName: 'Ayesha Ahmad Atelier', driveLink: '' });
+  const [form, setForm] = useState({ driveName: user?.brand?.name || 'LibasTrack', driveLink: '' });
   const [loading, setLoading] = useState(false);
   const [driveStatus, setDriveStatus] = useState(null);
+
+  useEffect(() => {
+    if (user?.brand?.name && form.driveName === 'LibasTrack') {
+      setForm(p => ({ ...p, driveName: user.brand.name }));
+    }
+  }, [user?.brand?.name]);
 
   useEffect(() => {
     api.get('/drive/status').then(r => setDriveStatus(r.data));
@@ -116,7 +122,7 @@ export default function DriveSetup() {
                       className="form-input"
                       value={form.driveName}
                       onChange={e => setForm(p => ({ ...p, driveName: e.target.value }))}
-                      placeholder="e.g. Ayesha Ahmad Atelier"
+                      placeholder={`e.g. ${user?.brand?.name || 'LibasTrack'}`}
                       required
                     />
                   </div>
@@ -149,7 +155,7 @@ export default function DriveSetup() {
             <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
               {[
                 { n:1, text:'Open Google Drive at drive.google.com' },
-                { n:2, text:'Navigate to your "Ayesha Ahmad Atelier" main folder' },
+                { n:2, text:`Navigate to your "${user?.brand?.name || 'LibasTrack'}" main folder` },
                 { n:3, text:'Right-click the folder → select "Get link"' },
                 { n:4, text:'Set sharing to "Anyone with the link" → copy it' },
                 { n:5, text:'Paste the link above and click Connect' },

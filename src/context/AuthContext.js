@@ -9,19 +9,15 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) fetchUser();
-    else setLoading(false);
+    if (token) fetchUser(); else setLoading(false);
   }, []);
 
   const fetchUser = async () => {
     try {
       const res = await api.get('/auth/me');
       setUser(res.data.user);
-    } catch {
-      localStorage.removeItem('token');
-    } finally {
-      setLoading(false);
-    }
+    } catch { localStorage.removeItem('token'); }
+    finally { setLoading(false); }
   };
 
   const loginWithGoogle = async () => {
@@ -37,8 +33,17 @@ export const AuthProvider = ({ children }) => {
 
   const refreshUser = () => fetchUser();
 
+  const currency = user?.brand?.currency || 'PKR';
+
+  const formatCurrency = (n) => {
+    const num = Number(n || 0);
+    if (num >= 1_000_000) return `${currency} ${(num / 1_000_000).toFixed(1)}M`;
+    if (num >= 100_000) return `${currency} ${(num / 1_000).toFixed(0)}K`;
+    return `${currency} ${num.toLocaleString()}`;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, loginWithGoogle, logout, refreshUser, setUser }}>
+    <AuthContext.Provider value={{ user, loading, loginWithGoogle, logout, refreshUser, setUser, currency, formatCurrency }}>
       {children}
     </AuthContext.Provider>
   );

@@ -58,7 +58,7 @@ export default function Checklist() {
         <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
           <div>
             <h1 className="page-title">Launch Checklist</h1>
-            <p className="page-subtitle">Track every phase of your atelier launch — from brand foundation to post-launch growth.</p>
+            <p className="page-subtitle">Track every phase of your brand launch — from brand foundation to post-launch growth.</p>
           </div>
           <button className="btn btn-secondary" onClick={initChecklist} disabled={initializing}>
             {initializing ? '⟳ Initializing…' : '↺ Reset Checklist'}
