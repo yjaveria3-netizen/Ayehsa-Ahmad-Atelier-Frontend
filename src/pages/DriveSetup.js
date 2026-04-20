@@ -35,11 +35,12 @@ const SHEET_ICONS = {
 export default function DriveSetup() {
   const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
-
   const [form, setForm] = useState({ driveName: '', driveLink: '' });
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null);
   const [sheets, setSheets] = useState(null);
+  const [mode, setMode] = useState('new'); // 'new' or 'existing'
+  const [importResults, setImportResults] = useState(null);
 
   useEffect(() => {
     api.get('/drive/status').then(r => {
@@ -56,12 +57,25 @@ export default function DriveSetup() {
       return toast.error('Please paste a valid Google Drive folder link');
     }
     setLoading(true);
+    setImportResults(null);
     try {
-      const res = await api.post('/drive/connect', form);
+      const endpoint = mode === 'new' ? '/drive/connect' : '/drive/connect-existing';
+      const res = await api.post(endpoint, form);
+      
       setSheets(res.data.spreadsheets);
-      toast.success('Google Drive connected! Spreadsheets created ✓');
+      
+      if (mode === 'existing') {
+        setImportResults(res.data.importStats);
+        toast.success(`Connected! Found existing data ✓`);
+      } else {
+        toast.success('Google Drive connected! Spreadsheets created ✓');
+      }
+
       await refreshUser();
-      setTimeout(() => navigate('/dashboard'), 1800);
+      
+      if (mode === 'new') {
+        setTimeout(() => navigate('/dashboard'), 1800);
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to connect. Check folder permissions.');
     } finally {
@@ -76,6 +90,7 @@ export default function DriveSetup() {
       await refreshUser();
       setStatus(null);
       setSheets(null);
+      setImportResults(null);
       toast.success('Drive disconnected');
     } catch { toast.error('Failed to disconnect'); }
   };
@@ -140,6 +155,19 @@ export default function DriveSetup() {
                     </div>
                   </div>
                 </div>
+
+                {importResults && (
+                  <div style={{ marginBottom: 24, padding: 12, background: 'rgba(167,139,250,0.05)', borderRadius: 12, border: '1px solid var(--accent-border)' }}>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--accent)', marginBottom: 8, textTransform: 'uppercase' }}>Recent Import Summary</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      {Object.entries(importResults).map(([k, v]) => v > 0 && (
+                        <div key={k} style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          <span style={{ textTransform: 'capitalize' }}>{k}</span>: <strong>{v}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Spreadsheet links */}
                 <div>
@@ -314,19 +342,47 @@ export default function DriveSetup() {
                 borderRadius: 16, padding: '28px',
                 boxShadow: '0 8px 32px rgba(167,139,250,0.08)',
               }}>
+                {/* Mode Toggle */}
+                <div style={{ display: 'flex', background: 'var(--bg-layer2)', borderRadius: 10, padding: 4, marginBottom: 24 }}>
+                  <button 
+                    onClick={() => setMode('new')}
+                    style={{ 
+                      flex: 1, padding: '8px', border: 'none', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700,
+                      background: mode === 'new' ? 'var(--accent)' : 'transparent',
+                      color: mode === 'new' ? 'white' : 'var(--text-faint)',
+                      cursor: 'pointer', transition: '0.2s'
+                    }}
+                  >
+                    New Workspace
+                  </button>
+                  <button 
+                    onClick={() => setMode('existing')}
+                    style={{ 
+                      flex: 1, padding: '8px', border: 'none', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700,
+                      background: mode === 'existing' ? 'var(--accent)' : 'transparent',
+                      color: mode === 'existing' ? 'white' : 'var(--text-faint)',
+                      cursor: 'pointer', transition: '0.2s'
+                    }}
+                  >
+                    Connect Existing
+                  </button>
+                </div>
+
                 <div style={{ marginBottom: 24 }}>
                   <div style={{
                     width: 48, height: 48, borderRadius: 12, marginBottom: 16,
                     background: 'var(--accent-soft)', border: '1px solid var(--accent-border)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem',
                   }}>
-                    ☁️
+                    {mode === 'new' ? '☁️' : '📥'}
                   </div>
                   <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.1rem', marginBottom: 6 }}>
-                    Connect Google Drive
+                    {mode === 'new' ? 'Connect Google Drive' : 'Sync Existing Drive'}
                   </div>
                   <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                    Paste your Drive folder link below. Spreadsheets will be created automatically.
+                    {mode === 'new' 
+                      ? 'Paste your Drive folder link below. Spreadsheets will be created automatically.'
+                      : 'Provide your existing LibasTrack folder link. We will fetch and import all data.'}
                   </div>
                 </div>
 
@@ -337,12 +393,12 @@ export default function DriveSetup() {
                       className="form-input"
                       value={form.driveName}
                       onChange={e => setForm(p => ({ ...p, driveName: e.target.value }))}
-                      placeholder="e.g. Ayesha Atelier Drive"
+                      placeholder="e.g. My Atelier Drive"
                       required
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Google Drive Folder Link *</label>
+                    <label className="form-label">Folder Link *</label>
                     <input
                       className="form-input"
                       value={form.driveLink}
@@ -350,9 +406,6 @@ export default function DriveSetup() {
                       placeholder="https://drive.google.com/drive/folders/…"
                       required
                     />
-                    <span className="form-hint">
-                      Open the folder in Drive → Share → Copy link → Paste here
-                    </span>
                   </div>
 
                   <AnimatePresence>
@@ -369,7 +422,7 @@ export default function DriveSetup() {
                         }}
                       >
                         <div className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
-                        Creating spreadsheets in your Drive…
+                        {mode === 'new' ? 'Creating workspace…' : 'Fetching existing data…'}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -380,7 +433,7 @@ export default function DriveSetup() {
                     style={{ width: '100%', marginTop: 4, padding: '13px' }}
                     disabled={loading}
                   >
-                    {loading ? 'Connecting…' : '🔗 Connect & Create Sheets'}
+                    {loading ? 'Initializing…' : mode === 'new' ? '🔗 Connect & Create Sheets' : '📥 Connect & Sync Data'}
                   </button>
                 </form>
               </div>

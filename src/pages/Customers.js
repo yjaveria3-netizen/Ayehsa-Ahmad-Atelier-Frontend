@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Reveal, StaggerContainer, StaggerItem, GlowCard } from '../components/Motion';
+import useDebounce from '../hooks/useDebounce';
+import { QueryErrorState, StatsLoadingGrid, TableLoadingRows } from '../components/QueryState';
 
 const SEGMENTS = ['VIP', 'Loyal', 'Regular', 'New', 'At Risk', 'Inactive'];
 const SOURCES = ['Instagram', 'Website', 'WhatsApp', 'Walk-in', 'Referral', 'Facebook', 'TikTok', 'Other'];
@@ -33,8 +35,10 @@ export default function Customers() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebounce(searchInput, 300);
   const [segmentFilter, setSegmentFilter] = useState('');
+  const [loadError, setLoadError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
@@ -43,6 +47,7 @@ export default function Customers() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setLoadError('');
     try {
       const params = new URLSearchParams({ page, limit: 15 });
       if (search) params.set('search', search);
@@ -55,7 +60,10 @@ export default function Customers() {
       setTotal(res.data.total);
       setTotalPages(res.data.totalPages);
       setStats(s.data);
-    } catch { toast.error('Failed to load customers'); }
+    } catch {
+      setLoadError('Unable to load customers right now.');
+      toast.error('Failed to load customers');
+    }
     finally { setLoading(false); }
   }, [page, search, segmentFilter]);
 
@@ -129,7 +137,9 @@ export default function Customers() {
       <div className="page-body">
 
         {/* ── Stats row ── */}
-        {stats && (
+        {loading && !stats ? (
+          <StatsLoadingGrid count={2} />
+        ) : stats && (
           <StaggerContainer staggerDelay={0.06} delayStart={0.1}>
             <div className="stats-grid" style={{ marginBottom: 28 }}>
               <StaggerItem>
@@ -186,8 +196,8 @@ export default function Customers() {
             <input
               className="form-input search-input"
               placeholder="Search name, ID, email, phone…"
-              value={search}
-              onChange={e => { setSearch(e.target.value); setPage(1); }}
+              value={searchInput}
+              onChange={e => { setSearchInput(e.target.value); setPage(1); }}
             />
           </div>
         </div>
@@ -196,7 +206,9 @@ export default function Customers() {
         <Reveal delay={0.05}>
           <div className="table-container">
             {loading ? (
-              <div className="page-loader"><div className="spinner" /></div>
+              <TableLoadingRows cols={9} rows={7} />
+            ) : loadError ? (
+              <QueryErrorState message={loadError} onRetry={fetchData} />
             ) : customers.length === 0 ? (
               <div className="empty-state">
                 <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>👥</div>

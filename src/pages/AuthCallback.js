@@ -11,42 +11,54 @@ export default function AuthCallback() {
   const [statusMsg, setStatusMsg] = useState('Authenticating…');
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    const needsOnboarding = searchParams.get('needsOnboarding') === 'true';
-    const needsStorageSetup = searchParams.get('needsStorageSetup') === 'true';
-    const error = searchParams.get('error');
+    const run = async () => {
+      const token = searchParams.get('token');
+      const needsOnboarding = searchParams.get('needsOnboarding') === 'true';
+      const needsStorageSetup = searchParams.get('needsStorageSetup') === 'true';
+      const error = searchParams.get('error');
 
-    if (error) {
-      toast.error('Google authentication failed. Please try again.');
-      navigate('/login');
-      return;
-    }
-
-    if (!token) {
-      navigate('/');
-      return;
-    }
-
-    localStorage.setItem('token', token);
-    setStatusMsg('Loading your workspace…');
-
-    refreshUser().then((user) => {
-      if (needsOnboarding) {
-        setStatusMsg('Setting up your brand…');
-        setTimeout(() => navigate('/onboarding'), 600);
-      } else if (needsStorageSetup) {
-        setStatusMsg('Choosing your storage…');
-        setTimeout(() => navigate('/storage-setup'), 600);
-      } else {
-        setStatusMsg('Welcome back!');
-        toast.success('Welcome back! 👋');
-        setTimeout(() => navigate('/dashboard'), 400);
+      if (error) {
+        toast.error('Google authentication failed. Please try again.');
+        navigate('/login');
+        return;
       }
-    }).catch(() => {
-      toast.error('Failed to load your profile. Please try again.');
-      navigate('/login');
-    });
-  }, []); // mount-only: URL params don't change after initial render
+
+      if (token) {
+        localStorage.setItem('token', token);
+      } else {
+        // Fallback: backend may rely on httpOnly cookie-only session.
+        setStatusMsg('Restoring your session…');
+      }
+
+      setStatusMsg('Loading your workspace…');
+
+      try {
+        const user = await refreshUser();
+        if (!user) {
+          toast.error('Session not found. Please sign in again.');
+          navigate('/login');
+          return;
+        }
+
+        if (needsOnboarding || !user.brand?.onboardingComplete) {
+          setStatusMsg('Setting up your brand…');
+          setTimeout(() => navigate('/onboarding'), 600);
+        } else if (needsStorageSetup || !user.storageType) {
+          setStatusMsg('Choosing your storage…');
+          setTimeout(() => navigate('/storage-setup'), 600);
+        } else {
+          setStatusMsg('Welcome back!');
+          toast.success('Welcome back! 👋');
+          setTimeout(() => navigate('/dashboard'), 400);
+        }
+      } catch {
+        toast.error('Failed to load your profile. Please try again.');
+        navigate('/login');
+      }
+    };
+
+    run();
+  }, [navigate, refreshUser, searchParams]);
 
 
   return (

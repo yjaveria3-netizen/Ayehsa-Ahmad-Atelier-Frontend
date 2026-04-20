@@ -3,6 +3,8 @@ import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Reveal, MagneticButton } from '../components/Motion';
+import useDebounce from '../hooks/useDebounce';
+import { QueryErrorState } from '../components/QueryState';
 
 const STATUSES = ['Planning', 'Production', 'Ready', 'Launched', 'Archived'];
 const SEASONS = ['SS24', 'AW24', 'SS25', 'AW25', 'SS26', 'AW26', 'Year-Round', 'Limited Edition', 'Custom'];
@@ -21,8 +23,10 @@ export default function Collection() {
   const [collections, setCollections] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebounce(searchInput, 300);
   const [statusFilter, setStatusFilter] = useState('');
+  const [loadError, setLoadError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
@@ -30,6 +34,7 @@ export default function Collection() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setLoadError('');
     try {
       const params = new URLSearchParams({ limit: 50 });
       if (search) params.set('search', search);
@@ -37,7 +42,10 @@ export default function Collection() {
       const res = await api.get(`/collections?${params}`);
       setCollections(res.data.collections || []);
       setTotal(res.data.total || 0);
-    } catch { toast.error('Failed to load collections'); }
+    } catch {
+      setLoadError('Unable to load collections right now.');
+      toast.error('Failed to load collections');
+    }
     finally { setLoading(false); }
   }, [search, statusFilter]);
 
@@ -88,7 +96,7 @@ export default function Collection() {
           <div className="filter-group">
             <div className="search-input-wrapper glass" style={{ border: '1px solid var(--accent-soft)' }}>
               <span className="search-icon" style={{ color: 'var(--accent)' }}>⌕</span>
-              <input className="form-input search-input" style={{ background: 'transparent', border: 'none' }} placeholder="Search elite collections…" value={search} onChange={e => setSearch(e.target.value)} />
+              <input className="form-input search-input" style={{ background: 'transparent', border: 'none' }} placeholder="Search elite collections…" value={searchInput} onChange={e => setSearchInput(e.target.value)} />
             </div>
             <select className="form-select glass" style={{ border: '1px solid var(--accent-soft)' }} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
               <option value="">All statuses</option>
@@ -100,6 +108,8 @@ export default function Collection() {
         {/* Collection grid */}
         {loading ? (
           <div className="page-loader"><div className="spinner" /></div>
+        ) : loadError ? (
+          <QueryErrorState message={loadError} onRetry={fetchData} />
         ) : collections.length === 0 ? (
           <div className="empty-state">
             <div className="empty-state-icon" style={{ color: 'var(--accent)' }}>◫</div>

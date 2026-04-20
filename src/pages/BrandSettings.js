@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { useForm } from 'react-hook-form';
 import { Reveal } from '../components/Motion';
 
 const BRAND_CATEGORIES = [
@@ -78,25 +79,27 @@ function Field({ label, hint, children }) {
 /* ── Main component ──────────────────────────────────────────── */
 export default function BrandSettings() {
   const { user, refreshUser } = useAuth();
-  const [form, setForm] = useState({
+  const defaultValues = {
     name: '', tagline: '', category: 'Contemporary',
     website: '', instagram: '', phone: '', address: '',
     city: '', country: 'Pakistan', currency: 'PKR', founded: '',
-  });
+  };
+  const { watch, setValue, reset, handleSubmit } = useForm({ defaultValues });
+  const form = watch();
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    if (user?.brand) setForm(f => ({ ...f, ...user.brand }));
-  }, [user]);
+    if (user?.brand) reset({ ...defaultValues, ...user.brand });
+  }, [reset, user]);
 
-  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+  const set = (k, v) => setValue(k, v, { shouldDirty: true });
 
-  const handleSave = async () => {
-    if (!form.name.trim()) return toast.error('Brand name is required');
+  const onSave = async (values) => {
+    if (!values.name?.trim()) return toast.error('Brand name is required');
     setSaving(true);
     try {
-      await api.put('/auth/brand', form);
+      await api.put('/auth/brand', values);
       await refreshUser();
       toast.success('Brand settings saved ✓');
       setSaved(true);
@@ -107,6 +110,8 @@ export default function BrandSettings() {
       setSaving(false);
     }
   };
+
+  const handleSave = handleSubmit(onSave);
 
   return (
     <div className="settings-page animate-vibe">

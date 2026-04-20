@@ -1,27 +1,85 @@
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const CACHE_TTL_MS = 60 * 1000;
+const responseCache = new Map();
+
+const buildCacheKey = (config) => {
+  const method = (config.method || 'get').toLowerCase();
+  return `${method}:${config.baseURL || ''}${config.url || ''}`;
+};
+
+const clearGetCache = () => {
+  responseCache.clear();
+};
 
 const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
   headers: { 'Content-Type': 'application/json' }
 });
 
 // Attach token to every request
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  const method = (config.method || 'get').toLowerCase();
+  const skipCache = config?.headers?.['x-skip-cache'] === 'true';
+
+  if (method === 'get' && !skipCache) {
+    const cacheKey = buildCacheKey(config);
+    const cached = responseCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      config.adapter = async () => ({
+        data: cached.data,
+        status: 200,
+        statusText: 'OK',
+        headers: cached.headers || {},
+        config,
+        request: null,
+      });
+    } else {
+      config.metadata = { ...(config.metadata || {}), cacheKey };
+    }
+  }
+
   return config;
 });
 
 // Handle 401 globally
 api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+  (res) => {
+    const method = (res.config?.method || 'get').toLowerCase();
+    if (method === 'get' && res.config?.metadata?.cacheKey) {
+      responseCache.set(res.config.metadata.cacheKey, {
+        data: res.data,
+        headers: res.headers,
+        timestamp: Date.now(),
+      });
     }
+
+    // Mutations invalidate cache to prevent stale lists/stats.
+    if (['post', 'put', 'patch', 'delete'].includes(method)) {
+      clearGetCache();
+    }
+
+    return res;
+  },
+  (err) => {
+    const method = (err.config?.method || '').toLowerCase();
+
+    if (err.response?.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
+    }
+
+    if (['post', 'put', 'patch', 'delete'].includes(method)) {
+      clearGetCache();
+    }
+
     return Promise.reject(err);
   }
 );

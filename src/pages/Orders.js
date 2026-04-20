@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Reveal, StaggerContainer, StaggerItem, MagneticButton, GlowCard } from '../components/Motion';
+import useDebounce from '../hooks/useDebounce';
+import { QueryErrorState, StatsLoadingGrid, TableLoadingRows } from '../components/QueryState';
 
 const STATUSES = ['Pending', 'Confirmed', 'Processing', 'Stitching', 'Quality Check', 'Ready', 'Dispatched', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Returned', 'Refunded'];
 const CHANNELS = ['Website', 'Instagram', 'WhatsApp', 'In-store', 'Phone', 'Facebook', 'TikTok', 'Other'];
@@ -42,9 +44,11 @@ export default function Orders() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebounce(searchInput, 300);
   const [statusFilter, setStatusFilter] = useState('');
   const [channelFilter, setChannelFilter] = useState('');
+  const [loadError, setLoadError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
@@ -54,6 +58,7 @@ export default function Orders() {
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
+    setLoadError('');
     try {
       const params = new URLSearchParams({ page, limit: 15 });
       if (search) params.set('search', search);
@@ -68,6 +73,7 @@ export default function Orders() {
       setTotalPages(res.data.totalPages);
       setStats(s.data);
     } catch {
+      setLoadError('Unable to load orders right now.');
       toast.error('Failed to load orders');
     } finally {
       setLoading(false);
@@ -137,6 +143,23 @@ export default function Orders() {
     }
   };
 
+  const handleDownloadInvoice = async (o) => {
+    try {
+      toast.loading('Generating invoice...', { id: 'invoice' });
+      const res = await api.get(`/orders/${o._id}/invoice`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Invoice_${o.orderId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      toast.success('Invoice downloaded!', { id: 'invoice' });
+    } catch {
+      toast.error('Failed to generate invoice', { id: 'invoice' });
+    }
+  };
+
   return (
     <div className="orders-page animate-vibe">
 
@@ -167,7 +190,9 @@ export default function Orders() {
       <div className="page-body">
 
         {/* ── Stats row ── */}
-        {stats && (
+        {loading && !stats ? (
+          <StatsLoadingGrid />
+        ) : stats && (
           <StaggerContainer staggerDelay={0.06} delayStart={0.1}>
             <div className="stats-grid" style={{ marginBottom: 28 }}>
               {[
@@ -225,8 +250,8 @@ export default function Orders() {
             <input
               className="form-input search-input"
               placeholder="Search reference, customer…"
-              value={search}
-              onChange={e => { setSearch(e.target.value); setPage(1); }}
+              value={searchInput}
+              onChange={e => { setSearchInput(e.target.value); setPage(1); }}
             />
           </div>
           <select
@@ -244,7 +269,9 @@ export default function Orders() {
         <Reveal delay={0.05}>
           <div className="table-container">
             {loading ? (
-              <div className="page-loader"><div className="spinner" /></div>
+              <TableLoadingRows cols={9} rows={7} />
+            ) : loadError ? (
+              <QueryErrorState message={loadError} onRetry={fetchOrders} />
             ) : orders.length === 0 ? (
               <div className="empty-state">
                 <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>📦</div>
@@ -345,6 +372,19 @@ export default function Orders() {
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
+                              onClick={() => handleDownloadInvoice(o)}
+                              style={{
+                                width: 30, height: 30, borderRadius: 7,
+                                border: '1px solid rgba(52,211,153,0.3)',
+                                background: 'rgba(52,211,153,0.1)', color: '#34D399',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                cursor: 'pointer', fontSize: '0.78rem',
+                              }}
+                              title="Download Invoice"
+                            >📄</motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
                               onClick={() => openEdit(o)}
                               style={{
                                 width: 30, height: 30, borderRadius: 7,
@@ -353,6 +393,7 @@ export default function Orders() {
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 cursor: 'pointer', fontSize: '0.78rem',
                               }}
+                              title="Edit Order"
                             >✏️</motion.button>
                             <motion.button
                               whileHover={{ scale: 1.1 }}
@@ -365,6 +406,7 @@ export default function Orders() {
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 cursor: 'pointer', fontSize: '0.78rem',
                               }}
+                              title="Delete Order"
                             >🗑️</motion.button>
                           </div>
                         </td>

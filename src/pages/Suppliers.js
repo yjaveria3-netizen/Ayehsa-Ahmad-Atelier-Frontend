@@ -3,6 +3,8 @@ import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { Reveal, StaggerContainer, StaggerItem, MagneticButton, GlowCard, ease } from '../components/Motion';
+import useDebounce from '../hooks/useDebounce';
+import { QueryErrorState, StatsLoadingGrid, TableLoadingRows } from '../components/QueryState';
 
 const CATEGORIES = ['Fabric', 'Embroidery', 'Stitching', 'Packaging', 'Printing', 'Accessories', 'Wholesale', 'Other'];
 const COUNTRIES = ['Pakistan', 'China', 'India', 'Bangladesh', 'Turkey', 'UAE', 'Other'];
@@ -14,8 +16,10 @@ export default function Suppliers() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebounce(searchInput, 300);
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [loadError, setLoadError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
@@ -24,6 +28,7 @@ export default function Suppliers() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setLoadError('');
     try {
       const params = new URLSearchParams({ page, limit: 15 });
       if (search) params.set('search', search);
@@ -36,7 +41,10 @@ export default function Suppliers() {
       setTotal(res.data.total);
       setTotalPages(res.data.totalPages);
       setStats(statsRes.data);
-    } catch { toast.error('Failed to load suppliers'); }
+    } catch {
+      setLoadError('Unable to load suppliers right now.');
+      toast.error('Failed to load suppliers');
+    }
     finally { setLoading(false); }
   }, [page, search, categoryFilter]);
 
@@ -88,7 +96,9 @@ export default function Suppliers() {
       </div>
 
       <div className="page-body">
-        {stats && (
+        {loading && !stats ? (
+          <StatsLoadingGrid count={2} />
+        ) : stats && (
           <StaggerContainer staggerDelay={0.06} delayStart={0.1}>
             <div className="stats-grid">
               <StaggerItem><GlowCard className="stat-card glass hover-glow" style={{ border: '1px solid var(--accent-soft)' }}>
@@ -107,7 +117,7 @@ export default function Suppliers() {
           <div className="filter-group">
             <div className="search-input-wrapper glass" style={{ border: '1px solid var(--accent-soft)' }}>
               <span className="search-icon" style={{ color: 'var(--accent)' }}>⌕</span>
-              <input className="form-input search-input" style={{ background: 'transparent', border: 'none' }} placeholder="Search Reference, Name, Specialty..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
+              <input className="form-input search-input" style={{ background: 'transparent', border: 'none' }} placeholder="Search Reference, Name, Specialty..." value={searchInput} onChange={e => { setSearchInput(e.target.value); setPage(1); }} />
             </div>
             <select className="form-select glass" style={{ border: '1px solid var(--accent-soft)' }} value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value); setPage(1); }}>
               <option value="">All Production Categories</option>
@@ -120,7 +130,9 @@ export default function Suppliers() {
           <div className="card glass overflow-hidden" style={{ border: '1px solid var(--accent-soft)', marginTop: 24 }}>
             <div className="table-container">
               {loading ? (
-                <div className="page-loader"><div className="spinner" /></div>
+                <TableLoadingRows cols={9} rows={6} />
+              ) : loadError ? (
+                <QueryErrorState message={loadError} onRetry={fetchData} />
               ) : suppliers.length === 0 ? (
                 <div className="empty-state">
                   <div className="empty-state-icon" style={{ color: 'var(--accent)' }}>⊞</div>

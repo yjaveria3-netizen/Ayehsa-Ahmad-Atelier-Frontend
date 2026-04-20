@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Reveal, StaggerContainer, StaggerItem, MagneticButton, GlowCard } from '../components/Motion';
+import useDebounce from '../hooks/useDebounce';
+import { QueryErrorState, StatsLoadingGrid, TableLoadingRows } from '../components/QueryState';
 
 const CATEGORIES = [
   'Lawn', 'Chiffon', 'Silk', 'Linen', 'Cotton', 'Embroidered',
@@ -181,9 +183,11 @@ export default function Products() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebounce(searchInput, 300);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [loadError, setLoadError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
@@ -196,6 +200,7 @@ export default function Products() {
   /* ── Data fetching ── */
   const fetchProducts = useCallback(async () => {
     setLoading(true);
+    setLoadError('');
     try {
       const params = new URLSearchParams({ page, limit: 15 });
       if (search) params.set('search', search);
@@ -209,7 +214,10 @@ export default function Products() {
       setTotal(res.data.total);
       setTotalPages(res.data.totalPages);
       setStats(s.data);
-    } catch { toast.error('Failed to load products'); }
+    } catch {
+      setLoadError('Unable to load products right now.');
+      toast.error('Failed to load products');
+    }
     finally { setLoading(false); }
   }, [page, search, categoryFilter, statusFilter]);
 
@@ -331,7 +339,9 @@ export default function Products() {
       <div className="page-body">
 
         {/* Stats */}
-        {stats && (
+        {loading && !stats ? (
+          <StatsLoadingGrid />
+        ) : stats && (
           <StaggerContainer staggerDelay={0.06} delayStart={0.1}>
             <div className="stats-grid">
               {[
@@ -362,8 +372,8 @@ export default function Products() {
                 className="form-input search-input"
                 style={{ background: 'transparent', border: 'none' }}
                 placeholder="Search name, SKU…"
-                value={search}
-                onChange={e => { setSearch(e.target.value); setPage(1); }}
+                value={searchInput}
+                onChange={e => { setSearchInput(e.target.value); setPage(1); }}
               />
             </div>
             <select
@@ -389,7 +399,9 @@ export default function Products() {
         <Reveal delay={0.05}>
           <div className="table-container" style={{ marginTop: 20 }}>
             {loading ? (
-              <div className="page-loader"><div className="spinner" /></div>
+              <TableLoadingRows cols={9} rows={7} />
+            ) : loadError ? (
+              <QueryErrorState message={loadError} onRetry={fetchProducts} />
             ) : products.length === 0 ? (
               <div className="empty-state">
                 <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>👗</div>
@@ -470,13 +482,19 @@ export default function Products() {
                         ) : '—'}
                       </td>
                       <td>
-                        <span style={{
-                          fontWeight: 700,
-                          color: p.stockQty <= 0 ? '#F87171'
-                            : p.stockQty <= (p.lowStockAlert || 5) ? '#FBBF24' : '#34D399',
-                        }}>
-                          {p.stockQty}
-                        </span>
+                        {p.stockQty <= 0 ? (
+                          <span style={{ background: 'rgba(248,113,113,0.15)', color: '#F87171', padding: '4px 10px', borderRadius: 12, fontWeight: 700, fontSize: '0.85rem' }}>
+                            Out of Stock
+                          </span>
+                        ) : p.stockQty <= (p.lowStockAlert || 5) ? (
+                          <span style={{ background: 'rgba(251,191,36,0.15)', color: '#FBBF24', padding: '4px 10px', borderRadius: 12, fontWeight: 700, fontSize: '0.85rem' }}>
+                            {p.stockQty} - Low Stock
+                          </span>
+                        ) : (
+                          <span style={{ color: '#34D399', fontWeight: 700, padding: '4px 10px' }}>
+                            {p.stockQty}
+                          </span>
+                        )}
                       </td>
                       <td>
                         <span className={`badge badge-${(p.status || 'active').toLowerCase().replace(/\s+/g, '-')}`}>

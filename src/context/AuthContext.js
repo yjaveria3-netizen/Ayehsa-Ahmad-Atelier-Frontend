@@ -13,9 +13,12 @@ export const AuthProvider = ({ children }) => {
       const res = await api.get('/auth/me');
       setUser(res.data.user);
       return res.data.user;
-    } catch {
-      localStorage.removeItem('token');
-      setUser(null);
+    } catch (err) {
+      // Clear auth only when backend confirms session is invalid.
+      if (err?.response?.status === 401) {
+        localStorage.removeItem('token');
+        setUser(null);
+      }
       return null;
     } finally {
       setLoading(false);

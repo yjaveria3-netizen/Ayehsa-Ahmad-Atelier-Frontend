@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { Reveal, StaggerContainer, StaggerItem, MagneticButton, GlowCard, ease } from '../components/Motion';
+import useDebounce from '../hooks/useDebounce';
+import { QueryErrorState, StatsLoadingGrid, TableLoadingRows } from '../components/QueryState';
 
 const REASONS = ['Wrong Size','Wrong Item','Defective/Damaged','Not as Described','Changed Mind','Duplicate Order','Late Delivery','Quality Issue','Other'];
 const TYPES = ['Refund','Exchange','Store Credit'];
@@ -28,9 +30,11 @@ export default function Returns() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebounce(searchInput, 300);
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  const [loadError, setLoadError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
@@ -48,6 +52,7 @@ export default function Returns() {
 
   const fetchReturns = useCallback(async () => {
     setLoading(true);
+    setLoadError('');
     try {
       const params = new URLSearchParams({ page, limit: 15 });
       if (search) params.set('search', search);
@@ -58,6 +63,7 @@ export default function Returns() {
       setTotal(res.data.total);
       setTotalPages(res.data.totalPages);
     } catch (err) {
+      setLoadError('Unable to load returns right now.');
       toast.error('Failed to load returns');
     } finally {
       setLoading(false);
@@ -122,7 +128,9 @@ export default function Returns() {
       </div>
 
       <div className="page-body">
-        {stats && (
+        {loading && !stats ? (
+          <StatsLoadingGrid count={3} />
+        ) : stats && (
           <StaggerContainer staggerDelay={0.06} delayStart={0.1}>
             <div className="stats-grid">
                <StaggerItem><GlowCard className="stat-card glass hover-glow" style={{ border: '1px solid var(--accent-soft)' }}>
@@ -145,7 +153,7 @@ export default function Returns() {
           <div className="filter-group">
             <div className="search-input-wrapper glass" style={{ border: '1px solid var(--accent-soft)' }}>
               <span className="search-icon" style={{ color: 'var(--accent)' }}>⌕</span>
-              <input className="form-input search-input" style={{ background: 'transparent', border: 'none' }} placeholder="Search Reference, Order ID..." value={search} onChange={e=>{setSearch(e.target.value);setPage(1);}} />
+              <input className="form-input search-input" style={{ background: 'transparent', border: 'none' }} placeholder="Search Reference, Order ID..." value={searchInput} onChange={e=>{setSearchInput(e.target.value);setPage(1);}} />
             </div>
             <select className="form-select glass" style={{ border: '1px solid var(--accent-soft)' }} value={statusFilter} onChange={e=>{setStatusFilter(e.target.value);setPage(1);}}>
               <option value="">Status: All Phases</option>
@@ -158,7 +166,9 @@ export default function Returns() {
           <div className="card glass overflow-hidden" style={{ border: '1px solid var(--accent-soft)', marginTop: 24 }}>
             <div className="table-container">
               {loading ? (
-                <div className="page-loader"><div className="spinner" /></div>
+                <TableLoadingRows cols={8} rows={6} />
+              ) : loadError ? (
+                <QueryErrorState message={loadError} onRetry={fetchReturns} />
               ) : returns.length === 0 ? (
                 <div className="empty-state">
                   <div className="empty-state-icon" style={{ color: 'var(--accent)' }}>↩</div>

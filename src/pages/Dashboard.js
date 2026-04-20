@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { QUICK_ACTIONS } from '../utils/navItems';
 import { motion } from 'framer-motion';
+import { QueryErrorState, StatsLoadingGrid } from '../components/QueryState';
 import {
   AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, CartesianGrid,
+  PieChart, Pie, Cell, Legend,
 } from 'recharts';
 import {
   Reveal, StaggerContainer, StaggerItem, SplitText,
@@ -29,55 +31,52 @@ const PremiumTooltip = ({ active, payload, label, formatCurrency }) => {
   );
 };
 
-/* Placeholder skeleton for stat cards */
-const StatSkeleton = () => (
-  <div className="stats-grid">
-    {Array.from({ length: 4 }).map((_, i) => (
-      <div key={i} className="skeleton" style={{ height: 130, borderRadius: 16 }} />
-    ))}
-  </div>
-);
-
 export default function Dashboard() {
   const { user, formatCurrency } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const brand = user?.brand || {};
 
-  useEffect(() => {
-    let cancelled = false;
-    const fetchStats = async () => {
-      try {
-        const [products, orders, customers, financial, suppliers] = await Promise.all([
-          api.get('/products/stats/summary').catch(() => ({ data: {} })),
-          api.get('/orders/stats/summary').catch(() => ({ data: {} })),
-          api.get('/customers/stats/summary').catch(() => ({ data: {} })),
-          api.get('/financial/stats/summary').catch(() => ({ data: {} })),
-          api.get('/suppliers/stats/summary').catch(() => ({ data: {} })),
-        ]);
-        if (!cancelled) {
-          setStats({
-            products: products.data, orders: orders.data,
-            customers: customers.data, financial: financial.data, suppliers: suppliers.data,
-          });
-        }
-      } catch (e) {
-        console.error('Dashboard stats error:', e);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    fetchStats();
-    return () => { cancelled = true; };
+  const fetchStats = useCallback(async () => {
+    setLoading(true);
+    setLoadError('');
+    try {
+      const [products, orders, customers, financial, suppliers, revenueChart, topProducts, topCustomers, lowStock, returns] = await Promise.all([
+        api.get('/products/stats/summary').catch(() => ({ data: {} })),
+        api.get('/orders/stats/summary').catch(() => ({ data: {} })),
+        api.get('/customers/stats/summary').catch(() => ({ data: {} })),
+        api.get('/financial/stats/summary').catch(() => ({ data: {} })),
+        api.get('/suppliers/stats/summary').catch(() => ({ data: {} })),
+        api.get('/orders/stats/revenue-chart').catch(() => ({ data: { sparkData: [] } })),
+        api.get('/orders/stats/top-products').catch(() => ({ data: { topProducts: [] } })),
+        api.get('/customers/stats/top').catch(() => ({ data: { topCustomers: [] } })),
+        api.get('/products/stats/low-stock').catch(() => ({ data: { lowStockProducts: [] } })),
+        api.get('/returns/stats/summary').catch(() => ({ data: {} })),
+      ]);
+      setStats({
+        products: products.data, orders: orders.data,
+        customers: customers.data, financial: financial.data, suppliers: suppliers.data,
+        sparkData: revenueChart.data.sparkData || [],
+        topProducts: topProducts.data.topProducts || [],
+        topCustomers: topCustomers.data.topCustomers || [],
+        lowStock: lowStock.data.lowStockProducts || [],
+        returns: returns.data || {},
+      });
+    } catch (e) {
+      console.error('Dashboard stats error:', e);
+      setLoadError('Unable to load dashboard metrics.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  /* Sample revenue data — replace with real API when available */
-  const sparkData = [
-    { m: 'Jan', v: 320000 }, { m: 'Feb', v: 290000 }, { m: 'Mar', v: 480000 },
-    { m: 'Apr', v: 410000 }, { m: 'May', v: 560000 }, { m: 'Jun', v: 500000 },
-    { m: 'Jul', v: 680000 },
-  ];
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  const sparkData = stats?.sparkData?.length ? stats.sparkData : [];
 
   const today = new Date().toLocaleDateString('en-GB', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
@@ -104,10 +103,10 @@ export default function Dashboard() {
       icon: '👤',
     },
     {
-      label: 'Active ROI',
-      value: 88,
-      isPct: true,
-      trend: 'up',
+      label: 'Avg Order Value',
+      value: stats?.orders?.total > 0 ? (stats?.financial?.completedRevenue || 0) / stats.orders.total : 0,
+      isCurrency: true,
+      trend: 'none',
       icon: '📈',
     },
   ];
@@ -138,6 +137,9 @@ export default function Dashboard() {
       to: '/financial',
     },
   ];
+
+  /* Chart Colors */
+  const COLORS = ['#7c3eed', '#a78bfa', '#c4b5fd', '#ede9fe', '#4c1d95'];
 
   return (
     <div className="dashboard-wrapper">
@@ -194,12 +196,14 @@ export default function Dashboard() {
           <>
             {/* Skeleton state */}
             <div className="stats-container">
-              <StatSkeleton />
+              <StatsLoadingGrid />
             </div>
             <div className="page-loader" style={{ marginTop: 40 }}>
               <div className="spinner" aria-label="Loading dashboard…" />
             </div>
           </>
+        ) : loadError ? (
+          <QueryErrorState message={loadError} onRetry={fetchStats} />
         ) : (
           <>
             {/* ── STAT CARDS ── */}
@@ -353,14 +357,19 @@ export default function Dashboard() {
                 <Reveal delay={0.5} direction="left">
                   <div className="card glass mini-panel">
                     <div className="panel-label">Delivery Rate</div>
-                    <div className="panel-value">94.2%</div>
+                    <div className="panel-value">
+                      {stats?.orders?.total > 0 
+                        ? ((stats.orders.delivered / stats.orders.total) * 100).toFixed(1) 
+                        : 0}%
+                    </div>
 
                     <div
                       className="tm-db-chart"
                       role="img"
                       aria-label="Delivery rate sparkline chart"
                     >
-                      {[30, 55, 40, 80, 60, 100, 70].map((h, i) => (
+                      {/* For visual effect, base the chart on the actual rate to look dynamic but representative */}
+                      {[30, 55, 40, 80, 60, 100, stats?.orders?.total > 0 ? (stats.orders.delivered / stats.orders.total * 100) : 70].map((h, i) => (
                         <motion.div
                           key={i}
                           className="tm-db-bar"
@@ -368,7 +377,7 @@ export default function Dashboard() {
                           animate={{ scaleY: 1 }}
                           transition={{ delay: 0.6 + i * 0.06, duration: 0.4, ease: 'easeOut' }}
                           style={{
-                            height: `${h}%`,
+                            height: `${Math.max(10, h)}%`,
                             background: i === 5 ? 'var(--accent)' : 'var(--accent-soft)',
                             transformOrigin: 'bottom',
                           }}
@@ -450,6 +459,113 @@ export default function Dashboard() {
                 </Reveal>
               </div>
             </div>
+
+            {/* ── EXTENDED ANALYTICS GRID ── */}
+            <div className="dashboard-grid" style={{ marginTop: 24, gap: 24 }}>
+              
+              {/* Best Selling Products */}
+              <Reveal delay={0.2} direction="up" className="card glass" style={{ padding: '24px' }}>
+                <div className="section-label" style={{ marginTop: 0, marginBottom: 16 }}>Best Selling Items</div>
+                {stats?.topProducts?.length > 0 ? (
+                  <div className="top-list">
+                    {stats.topProducts.map((p, i) => (
+                      <div key={p._id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{p.name || p._id}</div>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-faint)' }}>Sold: {p.sold}</div>
+                        </div>
+                        <div style={{ fontWeight: 700, color: 'var(--accent)' }}>
+                          {formatCurrency(p.revenue)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ padding: '20px 0', color: 'var(--text-faint)', fontSize: '0.85rem' }}>No sales data yet.</div>
+                )}
+              </Reveal>
+
+              {/* Customer LTV */}
+              <Reveal delay={0.3} direction="up" className="card glass" style={{ padding: '24px' }}>
+                <div className="section-label" style={{ marginTop: 0, marginBottom: 16 }}>Top Customers (LTV)</div>
+                {stats?.topCustomers?.length > 0 ? (
+                  <div className="top-list">
+                    {stats.topCustomers.map((c, i) => (
+                      <div key={c._id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{c.fullName}</div>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-faint)' }}>{c.totalOrders} Orders • {c.segment || 'Regular'}</div>
+                        </div>
+                        <div style={{ fontWeight: 700, color: 'var(--accent)' }}>
+                          {formatCurrency(c.totalSpent)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ padding: '20px 0', color: 'var(--text-faint)', fontSize: '0.85rem' }}>No customer data yet.</div>
+                )}
+              </Reveal>
+
+              {/* Low Stock Alerts */}
+              <Reveal delay={0.4} direction="up" className="card glass" style={{ padding: '24px', border: stats?.lowStock?.length > 0 ? '1px solid rgba(239, 68, 68, 0.3)' : 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                  <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                  <div className="section-label" style={{ margin: 0, color: stats?.lowStock?.length > 0 ? '#ef4444' : 'inherit' }}>Low Stock Alerts</div>
+                </div>
+                {stats?.lowStock?.length > 0 ? (
+                  <div className="top-list">
+                    {stats.lowStock.map((p, i) => (
+                      <div key={p._id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{p.name}</div>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-faint)' }}>SKU: {p.sku || 'N/A'}</div>
+                        </div>
+                        <div style={{ fontWeight: 700, color: p.stockQty === 0 ? '#ef4444' : '#fbbf24', background: 'rgba(255,255,255,0.05)', padding: '4px 10px', borderRadius: 12, fontSize: '0.85rem' }}>
+                          {p.stockQty} Left
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ padding: '20px 0', color: 'var(--text-faint)', fontSize: '0.85rem' }}>Inventory levels are healthy.</div>
+                )}
+              </Reveal>
+
+              {/* Returns Breakdown */}
+              <Reveal delay={0.5} direction="up" className="card glass" style={{ padding: '24px' }}>
+                <div className="section-label" style={{ marginTop: 0, marginBottom: 16 }}>Return Reasons</div>
+                {stats?.returns?.byReason?.length > 0 ? (
+                  <div style={{ width: '100%', height: 200 }}>
+                    <ResponsiveContainer>
+                      <PieChart>
+                        <Pie
+                          data={stats.returns.byReason}
+                          dataKey="count"
+                          nameKey="_id"
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={50}
+                          outerRadius={80}
+                          paddingAngle={3}
+                          stroke="none"
+                        >
+                          {stats.returns.byReason.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip contentStyle={{ background: '#111', border: '1px solid #333', borderRadius: 8 }} />
+                        <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '0.8rem', opacity: 0.8 }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div style={{ padding: '20px 0', color: 'var(--text-faint)', fontSize: '0.85rem' }}>No return data available.</div>
+                )}
+              </Reveal>
+              
+            </div>
+            
           </>
         )}
       </div>
