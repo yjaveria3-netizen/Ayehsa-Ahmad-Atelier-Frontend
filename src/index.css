@@ -1,23 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 /* ============================================================
    DESIGN TOKENS — Single source of truth
    ============================================================ */
 :root {
-  /* ... existing layers ... */
-  --bg-void: #06050E;
-  --bg-base: #0D0B1A;
-  --bg-layer1: #120F24;
-  --bg-layer2: #1A1633;
-  --bg-layer3: #221D42;
-  --bg-surface: rgba(167, 139, 250, 0.04);
+  /* Dark Theme (Bluish Purplish) */
+  --bg-void: #09090E;
+  --bg-base: #11101A;
+  --bg-layer1: #18162A;
+  --bg-layer2: #211E3A;
+  --bg-layer3: #2A264D;
+  --bg-surface: rgba(139, 92, 246, 0.05);
 
   /* Accent */
-  --accent: #A78BFA;
-  --accent-deep: #7C3AED;
-  --accent-soft: rgba(167, 139, 250, 0.12);
-  --accent-glow: rgba(167, 139, 250, 0.28);
-  --accent-border: rgba(167, 139, 250, 0.20);
+  --accent: #8B5CF6;       /* Violet 500 */
+  --accent-deep: #6366F1;  /* Indigo 500 */
+  --accent-soft: rgba(139, 92, 246, 0.15);
+  --accent-glow: rgba(139, 92, 246, 0.35);
+  --accent-border: rgba(139, 92, 246, 0.25);
 
   /* Legacy alias — keeps existing JSX working */
   --rose: var(--accent);
@@ -28,15 +28,15 @@
 
   /* Text */
   --text-primary: #FFFFFF;
-  --text-secondary: rgba(255, 255, 255, 0.82);
-  --text-muted: rgba(255, 255, 255, 0.48);
-  --text-faint: rgba(255, 255, 255, 0.24);
+  --text-secondary: rgba(255, 255, 255, 0.85);
+  --text-muted: rgba(255, 255, 255, 0.55);
+  --text-faint: rgba(255, 255, 255, 0.30);
   --text-accent: var(--accent);
 
   /* Semantic colours */
-  --emerald: #34D399;
-  --amber: #FBBF24;
-  --error: #F87171;
+  --emerald: #10B981;
+  --amber: #F59E0B;
+  --error: #EF4444;
   --gold: #C9A96E;
 
   /* Shadows */
@@ -47,8 +47,8 @@
   --sha-accent: 0 0 24px var(--accent-glow);
 
   /* Border aliases used in JSX */
-  --border-faint: rgba(167, 139, 250, 0.10);
-  --border-subtle: rgba(167, 139, 250, 0.16);
+  --border-faint: rgba(139, 92, 246, 0.12);
+  --border-subtle: rgba(139, 92, 246, 0.20);
   --shadow-sm: var(--sha-sm);
   --shadow-md: var(--sha-md);
   --shadow-lg: var(--sha-lg);
@@ -62,12 +62,50 @@
   --glass-blur: 24px;
 
   /* Typography */
-  --font-display: 'Cormorant Garamond', serif;
-  --font-heading: 'Outfit', sans-serif;
-  --font-body: 'Instrument Sans', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
 
   /* Sidebar bg (used in Light override) */
-  --sidebar-bg: rgba(13, 11, 26, 0.80);
+  --sidebar-bg: rgba(17, 16, 26, 0.85);
+}
+
+[data-theme="light"] {
+  /* Light Sky Bluish */
+  --bg-void: #F0F9FF;      /* Sky 50 */
+  --bg-base: #FFFFFF;      
+  --bg-layer1: #F8FAFC;    
+  --bg-layer2: #E0F2FE;    /* Sky 100 */
+  --bg-layer3: #BAE6FD;    /* Sky 200 */
+  --bg-surface: rgba(2, 132, 199, 0.04);
+
+  /* Accent */
+  --accent: #0284C7;       /* Sky 600 */
+  --accent-deep: #0369A1;  /* Sky 700 */
+  --accent-soft: rgba(2, 132, 199, 0.12);
+  --accent-glow: rgba(2, 132, 199, 0.28);
+  --accent-border: rgba(2, 132, 199, 0.30);
+
+  /* Text */
+  --text-primary: #0F172A; /* Slate 900 */
+  --text-secondary: #334155; /* Slate 700 */
+  --text-muted: #64748B;   /* Slate 500 */
+  --text-faint: #94A3B8;   /* Slate 400 */
+  --text-accent: var(--accent);
+
+  /* Shadows - Lighter for light mode */
+  --sha-sm: 0 4px 12px rgba(15, 23, 42, 0.06);
+  --sha-md: 0 12px 32px rgba(15, 23, 42, 0.08);
+  --sha-lg: 0 24px 64px rgba(15, 23, 42, 0.12);
+  --sha-xl: 0 40px 90px rgba(15, 23, 42, 0.15);
+  --sha-accent: 0 8px 24px var(--accent-glow);
+
+  /* Borders */
+  --border-faint: rgba(15, 23, 42, 0.08);
+  --border-subtle: rgba(15, 23, 42, 0.12);
+
+  /* Sidebar bg */
+  --sidebar-bg: rgba(248, 250, 252, 0.85);
 }
 
 /* ============================================================
@@ -177,11 +215,11 @@ img {
    GLASSMORPHISM
    ============================================================ */
 .glass {
-  background: rgba(18, 15, 36, 0.60);
+  background: color-mix(in srgb, var(--bg-layer1) 75%, transparent);
   backdrop-filter: blur(var(--glass-blur)) saturate(150%);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
-  border: 1px solid var(--accent-border);
-  box-shadow: var(--sha-md);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
 }
 
 /* ============================================================
