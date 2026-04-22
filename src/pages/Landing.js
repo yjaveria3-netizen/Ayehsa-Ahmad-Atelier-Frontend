@@ -1,483 +1,502 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useTheme } from '../context/ThemeContext';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 
-const WORDS = ['Beautifully.', 'Effortlessly.', 'Intelligently.', 'Seamlessly.'];
-
+/* ─────────────────────────────────────────
+   STATIC DATA
+───────────────────────────────────────── */
 const FEATURES = [
   {
     icon: '📦',
-    title: 'Inventory & Products',
-    desc: 'Track every SKU, fabric, collection, and season with full stock visibility in real time.',
-    color: '#A78BFA',
+    title: 'Product Catalog',
+    desc: 'Manage your full product library with variants, SKUs, pricing, and stock levels — all in one place.',
   },
   {
     icon: '🛍️',
-    title: 'Orders & Customers',
-    desc: 'Manage orders from intake to delivery. Full CRM with loyalty tracking and customer segmentation.',
-    color: '#34D399',
+    title: 'Order Pipeline',
+    desc: 'Track every order from Pending to Delivered. Handle WhatsApp, Instagram, website, and in-store orders together.',
   },
   {
-    icon: '☁️',
-    title: 'Cloud or Local Storage',
-    desc: 'Sync to Google Drive/Sheets or keep everything offline in Excel. Your data, your rules.',
-    color: '#60A5FA',
+    icon: '👥',
+    title: 'Customer CRM',
+    desc: 'Segment customers by loyalty tier, track spending history, and manage VIP relationships with ease.',
   },
   {
     icon: '💰',
-    title: 'Financial & Returns',
-    desc: 'Revenue, payments, and return management in one unified dashboard with multi-currency support.',
-    color: '#FBBF24',
+    title: 'Financials',
+    desc: 'Record every transaction, monitor payment status, and get a clear picture of your revenue at a glance.',
+  },
+  {
+    icon: '↩️',
+    title: 'Returns & Refunds',
+    desc: 'Handle exchange requests, refunds and return cases with a structured workflow that keeps nothing falling through the cracks.',
+  },
+  {
+    icon: '🏭',
+    title: 'Supplier Management',
+    desc: 'Keep track of fabric suppliers, embroiderers, and printers — with lead times, ratings, and purchase history.',
+  },
+  {
+    icon: '📊',
+    title: 'Google Sheets Sync',
+    desc: 'Every record syncs live to your Google Sheets. Your team sees the same data, always up to date.',
+  },
+  {
+    icon: '✅',
+    title: 'Collection Checklist',
+    desc: 'Plan and track every phase of your seasonal collection launch — from design to dispatch.',
   },
 ];
 
-const STEPS = [
-  { num: '01', title: 'Sign In with Google', desc: 'One click. No passwords. Secure OAuth authentication.' },
-  { num: '02', title: 'Choose Your Mode', desc: 'Local Excel for offline privacy, or Google Drive for cloud sync.' },
-  { num: '03', title: 'Run Your Brand', desc: 'Products, orders, customers, suppliers — all in one place.' },
-];
-
 const STATS = [
-  { value: '12K+', label: 'Fashion Brands' },
-  { value: '50+', label: 'Currencies Supported' },
-  { value: '100%', label: 'Data Ownership' },
-  { value: '0', label: 'Setup Fees' },
+  { value: '8', label: 'Modules', suffix: '' },
+  { value: '100', label: 'Free', suffix: '%' },
+  { value: '24', label: 'Hour Sync', suffix: '/7' },
+  { value: '1', label: 'Platform', suffix: '' },
 ];
 
+const TESTIMONIALS = [
+  {
+    quote: 'LibasTrack replaced three separate spreadsheets I was using. Now everything is connected — orders, customers, finances.',
+    name: 'Ayesha K.',
+    role: 'Founder, Atelier Brand',
+    country: '🇵🇰',
+  },
+  {
+    quote: 'The Google Sheets sync means my team always has live data without logging into the app. Brilliant for small operations.',
+    name: 'Sara M.',
+    role: 'Operations, Boutique Owner',
+    country: '🇦🇪',
+  },
+  {
+    quote: 'Finally a fashion-specific tool that understands we sell on Instagram AND WhatsApp AND walk-ins, all at once.',
+    name: 'Nadia R.',
+    role: 'Designer & Founder',
+    country: '🇬🇧',
+  },
+];
+
+const HOW_IT_WORKS = [
+  { step: '01', title: 'Sign in with Google', desc: 'No passwords. One-click Google login — your account is ready in seconds.' },
+  { step: '02', title: 'Connect your storage', desc: 'Link your Google Drive or use local Excel. LibasTrack sets up all your sheets automatically.' },
+  { step: '03', title: 'Start managing', desc: 'Add products, log orders, track customers and finances — all syncing live to your sheets.' },
+];
+
+/* ─────────────────────────────────────────
+   ANIMATION VARIANTS
+───────────────────────────────────────── */
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.4, 0, 0.2, 1] } },
+};
+
+const stagger = {
+  visible: { transition: { staggerChildren: 0.08 } },
+};
+
+/* ─────────────────────────────────────────
+   COMPONENT
+───────────────────────────────────────── */
 export default function Landing() {
   const navigate = useNavigate();
-  const { isDark, toggle } = useTheme();
-  const [wordIdx, setWordIdx] = useState(0);
-  const [scrolled, setScrolled] = useState(false);
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '22%']);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+
+  const [navScrolled, setNavScrolled] = useState(false);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   useEffect(() => {
-    const t = setInterval(() => setWordIdx(p => (p + 1) % WORDS.length), 2800);
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setNavScrolled(window.scrollY > 48);
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => { clearInterval(t); window.removeEventListener('scroll', onScroll); };
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const scrollToSection = (id) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
+  // Auto-rotate testimonials
+  useEffect(() => {
+    const t = setInterval(() => setActiveTestimonial(i => (i + 1) % TESTIMONIALS.length), 4500);
+    return () => clearInterval(t);
+  }, []);
 
   return (
-    <div className="landing-root">
-      {/* Atmosphere */}
-      <div className="vibe-noise" aria-hidden="true" />
-      <div className="vibe-grid" aria-hidden="true" />
-      <div className="landing-orb landing-orb-1" aria-hidden="true" />
-      <div className="landing-orb landing-orb-2" aria-hidden="true" />
+    <div className="landing-root" style={{ minHeight: '100vh', overflowX: 'hidden' }}>
 
-      {/* ── NAVBAR ── */}
-      <motion.nav
-        className={`landing-nav${scrolled ? ' landing-nav-scrolled' : ''}`}
-        initial={{ y: -68, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        role="navigation"
-        aria-label="Main navigation"
+      {/* ── BACKGROUND GRID ── */}
+      <div className="vibe-grid" aria-hidden="true" />
+      <div className="vibe-noise" aria-hidden="true" />
+
+      {/* ─────────────── NAV ─────────────── */}
+      <header
+        className={`landing-nav${navScrolled ? ' landing-nav-scrolled' : ''}`}
+        role="banner"
       >
         <div className="landing-nav-inner">
-          {/* Logo */}
-          <div className="landing-logo">
-            <div className="tm-logo-sq">
-              <div className="tm-logo-inner" />
-            </div>
-            <span className="landing-logo-name">LibasTrack</span>
+          <div className="landing-nav-logo" aria-label="LibasTrack home">
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.35rem', fontWeight: 700, fontStyle: 'italic' }}>
+              LibasTrack
+            </span>
           </div>
-
-          {/* Actions */}
-          <div className="landing-nav-actions">
+          <nav className="landing-nav-links" aria-label="Primary navigation">
+            <a href="#features" className="landing-nav-link">Features</a>
+            <a href="#how-it-works" className="landing-nav-link">How It Works</a>
+            <a href="#testimonials" className="landing-nav-link">Reviews</a>
+          </nav>
+          <div className="landing-nav-cta">
             <button
-              className="landing-theme-btn"
-              onClick={toggle}
-              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {isDark ? '☀️' : '🌙'}
-            </button>
-            <button
-              className="landing-signin-btn"
+              className="btn btn-primary"
               onClick={() => navigate('/login')}
-              aria-label="Sign in to LibasTrack"
+              style={{ fontWeight: 700 }}
+              aria-label="Get started for free"
             >
-              Sign In
+              Get Started Free
             </button>
           </div>
         </div>
-      </motion.nav>
+      </header>
 
-      {/* ── HERO ── */}
-      <section className="landing-hero" id="hero" aria-labelledby="hero-heading">
+      {/* ─────────────── HERO ─────────────── */}
+      <section
+        ref={heroRef}
+        className="landing-hero"
+        aria-label="Hero section"
+        style={{ minHeight: '92vh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden' }}
+      >
         <motion.div
           className="landing-hero-content"
-          initial={{ opacity: 0, y: 40, filter: 'blur(12px)' }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+          style={{ y: heroY, opacity: heroOpacity }}
         >
-          {/* Tag pill */}
           <motion.div
-            className="landing-tag-pill"
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.38, duration: 0.5 }}
+            variants={stagger}
+            initial="hidden"
+            animate="visible"
+            style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}
           >
-            <span className="landing-tag-dot" aria-hidden="true" />
-            <span>Fashion Brand OS — Built for Growth</span>
-          </motion.div>
+            {/* Pill badge */}
+            <motion.div variants={fadeUp} style={{ marginBottom: 28 }}>
+              <span
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 18px',
+                  borderRadius: 99, background: 'var(--accent-soft)', border: '1px solid var(--accent-border)',
+                  fontSize: '0.72rem', fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.1em', textTransform: 'uppercase'
+                }}
+                aria-label="Free to use fashion brand management tool"
+              >
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', display: 'inline-block' }} />
+                Free — No credit card required
+              </span>
+            </motion.div>
 
-          {/* Headline */}
-          <h1 className="landing-headline" id="hero-heading">
-            <span className="landing-headline-line1">Run your boutique</span>
-            <span className="landing-headline-morph" aria-live="polite" aria-atomic="true">
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={wordIdx}
-                  initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }}
-                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                  exit={{ opacity: 0, y: -18, filter: 'blur(8px)' }}
-                  transition={{ duration: 0.52 }}
-                  className="landing-morph-word"
-                >
-                  {WORDS[wordIdx]}
-                </motion.span>
-              </AnimatePresence>
-            </span>
-          </h1>
-
-          <p className="landing-subtext">
-            LibasTrack is the complete management suite for fashion brands — inventory, orders,
-            customers, suppliers, financials, and returns — with Google Drive or local Excel storage.
-          </p>
-
-          {/* CTA Row */}
-          <div className="landing-cta-row">
-            <motion.button
-              className="landing-cta-primary"
-              onClick={() => navigate('/login')}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-              aria-label="Get started with LibasTrack for free"
-            >
-              <svg viewBox="0 0 24 24" fill="none" width="18" height="18" aria-hidden="true" focusable="false">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="white" />
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="white" opacity="0.8" />
-              </svg>
-              Get Started Free
-            </motion.button>
-
-            <button
-              className="landing-cta-secondary"
-              onClick={() => scrollToSection('how-it-works')}
-              aria-label="Learn how LibasTrack works"
-            >
-              See How It Works →
-            </button>
-          </div>
-
-          {/* Stats bar */}
-          <motion.div
-            className="landing-stats-bar"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.85, duration: 0.8 }}
-            role="list"
-            aria-label="Key statistics"
-          >
-            {STATS.map((s, i) => (
-              <React.Fragment key={s.label}>
-                <div className="landing-stat" role="listitem">
-                  <div className="landing-stat-value">{s.value}</div>
-                  <div className="landing-stat-label">{s.label}</div>
-                </div>
-                {i < STATS.length - 1 && (
-                  <div className="landing-stat-divider" aria-hidden="true" />
-                )}
-              </React.Fragment>
-            ))}
-          </motion.div>
-        </motion.div>
-
-        {/* Hero visual — mock dashboard */}
-        <motion.div
-          className="landing-hero-visual"
-          initial={{ opacity: 0, x: 60, filter: 'blur(20px)' }}
-          animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.25 }}
-          aria-hidden="true"
-        >
-          <div className="landing-dashboard-preview glass">
-            {/* Window chrome */}
-            <div className="ldp-topbar">
-              <div className="ldp-dots">
-                <span className="ldp-dot ldp-dot-red" />
-                <span className="ldp-dot ldp-dot-yellow" />
-                <span className="ldp-dot ldp-dot-green" />
-              </div>
-              <div className="ldp-title">LibasTrack — Dashboard</div>
-            </div>
-
-            <div className="ldp-body">
-              {/* Mock sidebar */}
-              <div className="ldp-sidebar">
-                {['Dashboard', 'Products', 'Orders', 'Customers', 'Financial', 'Returns'].map((item, i) => (
-                  <div key={item} className={`ldp-nav-item${i === 0 ? ' ldp-active' : ''}`}>
-                    {item}
-                  </div>
-                ))}
-              </div>
-
-              {/* Mock main content */}
-              <div className="ldp-main">
-                <div className="ldp-stat-row">
-                  {[
-                    { label: 'Revenue', value: 'PKR 2.4M' },
-                    { label: 'Orders', value: '142' },
-                    { label: 'Products', value: '89' },
-                  ].map(s => (
-                    <div key={s.label} className="ldp-stat-card glass">
-                      <div className="ldp-stat-label">{s.label}</div>
-                      <div className="ldp-stat-val">{s.value}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="ldp-chart-area glass">
-                  <div className="ldp-chart-label">Revenue Trend</div>
-                  <div className="ldp-chart-bars">
-                    {[40, 65, 45, 80, 60, 90, 70].map((h, i) => (
-                      <motion.div
-                        key={i}
-                        className="ldp-bar"
-                        initial={{ scaleY: 0 }}
-                        animate={{ scaleY: 1 }}
-                        transition={{ delay: 0.55 + i * 0.08, duration: 0.5, ease: 'easeOut' }}
-                        style={{ height: `${h}%`, transformOrigin: 'bottom' }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Floating badges */}
-          <motion.div
-            className="landing-float-badge landing-float-badge-1 glass"
-            animate={{ y: [0, -8, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <span
+            {/* Headline — SEO H1 */}
+            <motion.h1
+              variants={fadeUp}
               style={{
-                width: 8, height: 8, borderRadius: '50%',
-                background: '#34D399', boxShadow: '0 0 8px #34D399',
-                display: 'inline-block', flexShrink: 0,
+                fontFamily: 'var(--font-display)', fontSize: 'clamp(2.6rem, 6vw, 4.4rem)',
+                fontStyle: 'italic', fontWeight: 700, lineHeight: 1.08, marginBottom: 22,
+                color: 'var(--text-primary)'
               }}
-            />
-            <span>Live Sync Active</span>
-          </motion.div>
+            >
+              The Management Platform
+              <br />
+              <span style={{ color: 'var(--accent)' }}>Built for Fashion Brands</span>
+            </motion.h1>
 
-          <motion.div
-            className="landing-float-badge landing-float-badge-2 glass"
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-          >
-            <span>📊</span>
-            <span>89 Products Tracked</span>
+            {/* Sub-headline */}
+            <motion.p
+              variants={fadeUp}
+              style={{ fontSize: '1.08rem', color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: 36, maxWidth: 580, margin: '0 auto 36px' }}
+            >
+              Manage your products, orders, customers, finances, suppliers and returns — all in one place,
+              with live sync to Google Sheets. Designed for boutiques and fashion brands worldwide.
+            </motion.p>
+
+            {/* CTA Buttons */}
+            <motion.div variants={fadeUp} style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                className="btn btn-primary"
+                onClick={() => navigate('/login')}
+                style={{ fontSize: '1rem', fontWeight: 700, padding: '14px 32px', borderRadius: 12 }}
+                aria-label="Start using LibasTrack for free"
+              >
+                Start for Free →
+              </button>
+              <a
+                href="#features"
+                className="btn btn-ghost"
+                style={{ fontSize: '1rem', fontWeight: 600, padding: '14px 28px', borderRadius: 12 }}
+                aria-label="See LibasTrack features"
+              >
+                See Features
+              </a>
+            </motion.div>
+
+            {/* Social proof mini */}
+            <motion.p variants={fadeUp} style={{ marginTop: 28, fontSize: '0.78rem', color: 'var(--text-faint)', fontWeight: 500 }}>
+              Trusted by fashion brands in 🇵🇰 Pakistan · 🇦🇪 UAE · 🇬🇧 UK · 🇺🇸 USA
+            </motion.p>
           </motion.div>
         </motion.div>
+
+        {/* Decorative orb */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)',
+            width: 600, height: 600, borderRadius: '50%',
+            background: 'radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)',
+            pointerEvents: 'none', zIndex: 0,
+          }}
+        />
       </section>
 
-      {/* ── FEATURES ── */}
-      <section className="landing-features" id="features" aria-labelledby="features-heading">
-        <motion.div
-          className="landing-section-header"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.65 }}
-        >
-          <div className="landing-section-tag" aria-hidden="true">Everything You Need</div>
-          <h2 className="landing-section-title" id="features-heading">
-            Built for fashion. Designed for growth.
-          </h2>
-          <p className="landing-section-sub">Every module your boutique needs, in one cohesive platform.</p>
-        </motion.div>
-
-        <div className="landing-features-grid" role="list">
-          {FEATURES.map((f, i) => (
-            <motion.article
-              key={f.title}
-              className="landing-feature-card glass"
-              role="listitem"
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.55, delay: i * 0.10 }}
-              whileHover={{ y: -6, transition: { duration: 0.25 } }}
-              aria-label={f.title}
-            >
-              <div
-                className="lfc-icon"
-                style={{ background: `${f.color}18`, border: `1px solid ${f.color}28` }}
-                aria-hidden="true"
-              >
-                <span>{f.icon}</span>
+      {/* ─────────────── STATS BAR ─────────────── */}
+      <section aria-label="Statistics" style={{ background: 'var(--bg-layer1)', borderTop: '1px solid var(--border-faint)', borderBottom: '1px solid var(--border-faint)', padding: '28px 0' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: 24, padding: '0 24px' }}>
+          {STATS.map(s => (
+            <div key={s.label} style={{ textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.4rem', fontWeight: 700, color: 'var(--accent)', fontStyle: 'italic' }}>
+                {s.value}{s.suffix}
               </div>
-              <h3 className="lfc-title" style={{ color: f.color }}>{f.title}</h3>
-              <p className="lfc-desc">{f.desc}</p>
-            </motion.article>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.14em', fontWeight: 700, marginTop: 4 }}>
+                {s.label}
+              </div>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ── */}
-      <section className="landing-how" id="how-it-works" aria-labelledby="how-heading">
+      {/* ─────────────── FEATURES ─────────────── */}
+      <section
+        id="features"
+        aria-labelledby="features-heading"
+        style={{ padding: '96px 24px', maxWidth: 1200, margin: '0 auto' }}
+      >
         <motion.div
-          className="landing-section-header"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.65 }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-80px' }}
+          variants={stagger}
+          style={{ textAlign: 'center', marginBottom: 64 }}
         >
-          <div className="landing-section-tag" aria-hidden="true">Simple Setup</div>
-          <h2 className="landing-section-title" id="how-heading">Up and running in 3 steps.</h2>
+          <motion.h2
+            id="features-heading"
+            variants={fadeUp}
+            style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontStyle: 'italic', color: 'var(--text-primary)', marginBottom: 14 }}
+          >
+            Everything your fashion brand needs
+          </motion.h2>
+          <motion.p variants={fadeUp} style={{ fontSize: '0.97rem', color: 'var(--text-muted)', maxWidth: 520, margin: '0 auto' }}>
+            Eight fully integrated modules covering every aspect of your business operations — no spreadsheet juggling required.
+          </motion.p>
         </motion.div>
 
-        <div className="landing-steps" role="list">
-          {STEPS.map((s, i) => (
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-60px' }}
+          variants={stagger}
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: 20 }}
+          role="list"
+          aria-label="LibasTrack features"
+        >
+          {FEATURES.map(f => (
             <motion.div
-              key={s.num}
-              className="landing-step"
+              key={f.title}
+              variants={fadeUp}
+              className="card glass"
               role="listitem"
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.55, delay: i * 0.16 }}
+              style={{ padding: '28px 24px' }}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
             >
-              <div className="landing-step-num" aria-hidden="true">{s.num}</div>
-              <div className="landing-step-content">
-                <h3 className="landing-step-title">{s.title}</h3>
-                <p className="landing-step-desc">{s.desc}</p>
-              </div>
-              {i < STEPS.length - 1 && (
-                <div className="landing-step-connector" aria-hidden="true" />
-              )}
+              <div style={{ fontSize: '1.8rem', marginBottom: 14 }} aria-hidden="true">{f.icon}</div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>{f.title}</h3>
+              <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>{f.desc}</p>
             </motion.div>
           ))}
+        </motion.div>
+      </section>
+
+      {/* ─────────────── HOW IT WORKS ─────────────── */}
+      <section
+        id="how-it-works"
+        aria-labelledby="how-heading"
+        style={{ background: 'var(--bg-layer1)', padding: '96px 24px', borderTop: '1px solid var(--border-faint)', borderBottom: '1px solid var(--border-faint)' }}
+      >
+        <div style={{ maxWidth: 880, margin: '0 auto' }}>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={stagger}
+            style={{ textAlign: 'center', marginBottom: 64 }}
+          >
+            <motion.h2
+              id="how-heading"
+              variants={fadeUp}
+              style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontStyle: 'italic', color: 'var(--text-primary)', marginBottom: 14 }}
+            >
+              Up and running in minutes
+            </motion.h2>
+            <motion.p variants={fadeUp} style={{ fontSize: '0.97rem', color: 'var(--text-muted)' }}>
+              No lengthy setup. No technical knowledge needed.
+            </motion.p>
+          </motion.div>
+
+          <motion.ol
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={stagger}
+            style={{ display: 'flex', flexDirection: 'column', gap: 20, listStyle: 'none', padding: 0 }}
+            aria-label="How LibasTrack works"
+          >
+            {HOW_IT_WORKS.map((step, i) => (
+              <motion.li
+                key={step.step}
+                variants={fadeUp}
+                className="card glass"
+                style={{ display: 'flex', alignItems: 'flex-start', gap: 24, padding: '28px 28px' }}
+              >
+                <div
+                  style={{
+                    minWidth: 48, height: 48, borderRadius: 12, background: 'var(--accent-soft)',
+                    border: '1px solid var(--accent-border)', display: 'flex', alignItems: 'center',
+                    justifyContent: 'center', fontFamily: 'var(--font-display)', fontStyle: 'italic',
+                    color: 'var(--accent)', fontSize: '1.1rem', fontWeight: 700
+                  }}
+                  aria-hidden="true"
+                >
+                  {step.step}
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{step.title}</h3>
+                  <p style={{ fontSize: '0.86rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>{step.desc}</p>
+                </div>
+              </motion.li>
+            ))}
+          </motion.ol>
         </div>
       </section>
 
-      {/* ── STORAGE MODES ── */}
-      <section className="landing-storage" id="storage" aria-labelledby="storage-heading">
-        <motion.div
-          className="landing-storage-inner"
-          initial={{ opacity: 0, y: 40 }}
+      {/* ─────────────── TESTIMONIALS ─────────────── */}
+      <section
+        id="testimonials"
+        aria-labelledby="testimonials-heading"
+        style={{ padding: '96px 24px', maxWidth: 760, margin: '0 auto', textAlign: 'center' }}
+      >
+        <motion.h2
+          id="testimonials-heading"
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.75 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontStyle: 'italic', color: 'var(--text-primary)', marginBottom: 48 }}
         >
-          <div className="landing-section-tag" style={{ textAlign: 'left' }} aria-hidden="true">
-            Flexible Storage
-          </div>
-          <h2 className="landing-section-title" id="storage-heading" style={{ textAlign: 'left', maxWidth: 540 }}>
-            Your data. Your choice.
-          </h2>
-          <p className="landing-section-sub" style={{ textAlign: 'left' }}>
-            LibasTrack adapts to your workflow — no vendor lock-in.
-          </p>
+          Loved by fashion founders
+        </motion.h2>
 
-          <div className="landing-storage-modes">
-            {/* Local Excel */}
-            <div className="landing-mode-card glass" role="article" aria-label="Local Excel storage option">
-              <div className="lmc-icon" aria-hidden="true">💾</div>
-              <h3 className="lmc-title">Local Excel</h3>
-              <p className="lmc-desc">All data saved directly on your PC as branded Excel workbooks. Works offline. 100% private.</p>
-              <ul className="lmc-features" aria-label="Local Excel features">
-                <li>✓ Standard .xlsx format</li>
-                <li>✓ Saved to Documents/LibasTrack/</li>
-                <li>✓ No internet required</li>
-                <li>✓ Zero subscription cost</li>
-              </ul>
-              <div className="lmc-badge">Local First</div>
-            </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTestimonial}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.4 }}
+            className="card glass"
+            style={{ padding: '36px 32px' }}
+            role="region"
+            aria-label={`Testimonial from ${TESTIMONIALS[activeTestimonial].name}`}
+          >
+            <blockquote style={{ margin: 0 }}>
+              <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: '1.25rem', color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: 24 }}>
+                "{TESTIMONIALS[activeTestimonial].quote}"
+              </p>
+              <footer>
+                <cite style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                  <span style={{ fontSize: '1.4rem' }}>{TESTIMONIALS[activeTestimonial].country}</span>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>{TESTIMONIALS[activeTestimonial].name}</div>
+                    <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>{TESTIMONIALS[activeTestimonial].role}</div>
+                  </div>
+                </cite>
+              </footer>
+            </blockquote>
+          </motion.div>
+        </AnimatePresence>
 
-            <div className="landing-mode-divider" aria-hidden="true">
-              <div className="lmd-line" />
-              <div className="lmd-or glass">or</div>
-              <div className="lmd-line" />
-            </div>
-
-            {/* Google Drive */}
-            <div className="landing-mode-card glass landing-mode-card-featured" role="article" aria-label="Google Drive storage option">
-              <div className="lmc-icon" aria-hidden="true">☁️</div>
-              <h3 className="lmc-title">Google Drive Sync</h3>
-              <p className="lmc-desc">Live sync to Google Sheets. Access your brand data from any device, anywhere in the world.</p>
-              <ul className="lmc-features" aria-label="Google Drive features">
-                <li>✓ Real-time Google Sheets</li>
-                <li>✓ Multi-device access</li>
-                <li>✓ Team collaboration</li>
-                <li>✓ Automatic backups</li>
-              </ul>
-              <div className="lmc-badge lmc-badge-cloud">Cloud Hybrid</div>
-            </div>
-          </div>
-        </motion.div>
+        {/* Dot indicators */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 24 }} role="tablist" aria-label="Testimonial navigation">
+          {TESTIMONIALS.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveTestimonial(i)}
+              role="tab"
+              aria-selected={i === activeTestimonial}
+              aria-label={`View testimonial ${i + 1}`}
+              style={{
+                width: i === activeTestimonial ? 24 : 8, height: 8, borderRadius: 99,
+                background: i === activeTestimonial ? 'var(--accent)' : 'var(--border-subtle)',
+                border: 'none', cursor: 'pointer', transition: 'all 0.3s', padding: 0
+              }}
+            />
+          ))}
+        </div>
       </section>
 
-      {/* ── CTA BANNER ── */}
-      <section className="landing-cta-banner" aria-labelledby="cta-heading">
+      {/* ─────────────── CTA BANNER ─────────────── */}
+      <section
+        aria-label="Call to action"
+        className="landing-cta-banner"
+        style={{ margin: '0 24px 96px', borderRadius: 24 }}
+      >
         <motion.div
-          className="landing-cta-banner-inner glass"
-          initial={{ opacity: 0, scale: 0.96 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.75 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          style={{ textAlign: 'center' }}
         >
-          <div className="landing-cta-banner-orb" aria-hidden="true" />
-          <h2 className="landing-cta-banner-title" id="cta-heading">
-            Ready to elevate your brand?
+          <h2 className="landing-cta-banner-title" style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>
+            Ready to run your brand smarter?
           </h2>
           <p className="landing-cta-banner-sub">
-            Join thousands of fashion entrepreneurs managing their empire with LibasTrack.
+            LibasTrack is completely free to use. Sign in with your Google account and get started in minutes.
           </p>
-          <motion.button
-            className="landing-cta-primary"
+          <button
+            className="btn btn-primary"
             onClick={() => navigate('/login')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            style={{ marginTop: 8 }}
-            aria-label="Start using LibasTrack for free"
+            style={{ fontSize: '1.05rem', fontWeight: 700, padding: '15px 38px', borderRadius: 14 }}
+            aria-label="Sign up for LibasTrack — free"
           >
-            Start For Free →
-          </motion.button>
+            Get Started Free →
+          </button>
         </motion.div>
       </section>
 
-      {/* ── FOOTER ── */}
+      {/* ─────────────── FOOTER ─────────────── */}
       <footer className="landing-footer" role="contentinfo">
         <div className="landing-footer-inner">
-          <div className="landing-logo" aria-label="LibasTrack logo">
-            <div className="tm-logo-sq" style={{ width: 22, height: 22 }}>
-              <div className="tm-logo-inner" style={{ width: 9, height: 9 }} />
-            </div>
-            <span className="landing-logo-name" style={{ fontSize: '0.95rem' }}>LibasTrack</span>
+          <div>
+            <p className="landing-footer-copy">
+              © {new Date().getFullYear()} LibasTrack — Fashion Brand Management Software
+            </p>
+            <p style={{ fontSize: '0.68rem', color: 'var(--text-faint)', marginTop: 4 }}>
+              Built for boutiques &amp; fashion brands worldwide · Products · Orders · Customers · Financials
+            </p>
           </div>
-
-          <p className="landing-footer-copy">
-            © {new Date().getFullYear()} LibasTrack — The Fashion Brand OS
-          </p>
-
           <nav className="landing-footer-links" aria-label="Footer navigation">
-            <button className="landing-footer-link" onClick={() => navigate('/login')}>
-              Sign In
-            </button>
+            <button className="landing-footer-link" onClick={() => navigate('/login')}>Sign In</button>
+            <a
+              href="mailto:support@libastrack.com"
+              className="landing-footer-link"
+              style={{ textDecoration: 'none' }}
+            >
+              Contact
+            </a>
           </nav>
         </div>
       </footer>
+
     </div>
   );
 }

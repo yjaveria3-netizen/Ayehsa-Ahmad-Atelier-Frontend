@@ -23,10 +23,10 @@ export default function AuthCallback() {
         return;
       }
 
-      if (token) {
-        localStorage.setItem('token', token);
-      } else {
-        // Fallback: backend may rely on httpOnly cookie-only session.
+      // Token is now stored in httpOnly cookie by backend (more secure)
+      // Frontend should NOT store tokens in localStorage or URL
+      // Cookies are automatically sent with credentials: true in API calls
+      if (!token) {
         setStatusMsg('Restoring your session…');
       }
 

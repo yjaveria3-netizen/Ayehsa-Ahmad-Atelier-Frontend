@@ -6,8 +6,8 @@ import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const BRAND_CATEGORIES = ['Luxury', 'Premium', 'Contemporary', 'Fast Fashion', 'Streetwear', 'Bridal', 'Kids', 'Sportswear', 'Modest Fashion', 'Other'];
-const CURRENCIES = ['PKR', 'USD', 'GBP', 'EUR', 'AED', 'SAR', 'INR', 'BDT', 'TRY'];
-const COUNTRIES = ['Pakistan', 'United States', 'United Kingdom', 'United Arab Emirates', 'Saudi Arabia', 'India', 'Bangladesh', 'Turkey', 'Other'];
+const CURRENCIES = ['PKR', 'USD', 'EUR', 'GBP', 'AUD', 'CAD'];
+const COUNTRIES = ['Pakistan', 'United States', 'United Kingdom', 'Australia', 'Canada', 'Other'];
 
 const STEPS = [
   { id: 1, title: 'Brand Identity', desc: 'Name and positioning', icon: '🏷️' },

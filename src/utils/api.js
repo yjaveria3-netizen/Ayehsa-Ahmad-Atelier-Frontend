@@ -19,9 +19,12 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 });
 
-// Attach token to every request
+// Attach token to every request (if stored in localStorage as fallback)
+// NOTE: Prefer httpOnly cookies which are sent automatically with withCredentials: true
 api.interceptors.request.use((config) => {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  // Only use localStorage token if absolutely necessary (legacy support)
+  // httpOnly cookies are more secure and sent automatically
   if (token) config.headers.Authorization = `Bearer ${token}`;
 
   const method = (config.method || 'get').toLowerCase();

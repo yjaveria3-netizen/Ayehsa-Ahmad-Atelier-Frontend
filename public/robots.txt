@@ -1,0 +1,25 @@
+# LibasTrack — robots.txt
+User-agent: *
+Allow: /
+
+# Block private authenticated routes from being indexed
+Disallow: /dashboard
+Disallow: /orders
+Disallow: /products
+Disallow: /customers
+Disallow: /financial
+Disallow: /suppliers
+Disallow: /returns
+Disallow: /checklist
+Disallow: /collections
+Disallow: /drive-setup
+Disallow: /storage-setup
+Disallow: /onboarding
+Disallow: /settings
+Disallow: /auth/callback
+
+# Allow the public landing and login pages
+Allow: /
+Allow: /login
+
+Sitemap: https://libastrack.com/sitemap.xml
