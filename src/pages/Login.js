@@ -47,12 +47,7 @@ export default function Login() {
   const handleLogin = async () => {
     if (isLoading) return;
     setIsLoading(true);
-    try {
-      await loginWithGoogle();
-    } catch {
-      toast.error('Failed to initiate Google login. Please try again.');
-      setIsLoading(false);
-    }
+    loginWithGoogle();
   };
 
   return (

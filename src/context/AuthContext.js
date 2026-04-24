@@ -3,6 +3,14 @@ import api from '../utils/api';
 
 const AuthContext = createContext(null);
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const buildGoogleAuthUrl = () => {
+  const trimmedBaseUrl = (API_BASE_URL || '').trim();
+  if (!trimmedBaseUrl) {
+    throw new Error('Missing REACT_APP_API_URL');
+  }
+
+  return `${trimmedBaseUrl.replace(/\/api\/?$/, '')}/api/auth/google`;
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -46,8 +54,8 @@ export const AuthProvider = ({ children }) => {
 
   // ── ✅ FIXED Google OAuth ────────────────
   const loginWithGoogle = () => {
-    const authUrl = `${API_BASE_URL.replace(/\/api\/?$/, '')}/api/auth/google`;
-    window.location.href = authUrl;
+    const authUrl = buildGoogleAuthUrl();
+    window.location.assign(authUrl);
   };
 
   // ── Logout ──────────────────────────────
