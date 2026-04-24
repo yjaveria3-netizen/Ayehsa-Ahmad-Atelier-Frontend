@@ -1451,6 +1451,19 @@ td:last-child {
   align-items: center;
 }
 
+.dashboard-header-copy {
+  min-width: 0;
+}
+
+.dashboard-header-actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.dashboard-header-btn {
+  min-width: 148px;
+}
+
 /* Stats */
 .stats-container {
   margin-bottom: 32px;
@@ -4981,6 +4994,15 @@ tr:hover td {
 }
 
 @media (max-width: 768px) {
+  .dashboard-header-actions {
+    width: 100%;
+  }
+
+  .dashboard-header-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
   .page-header {
     padding: 20px 16px 14px;
   }
@@ -5119,6 +5141,18 @@ tr:hover td {
 }
 
 @media (max-width: 560px) {
+  .dashboard-header-copy .page-subtitle {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .dashboard-header-copy .brand-badge {
+    margin-right: 0;
+    width: fit-content;
+  }
+
   .mobile-top-bar {
     padding-left: 12px;
     padding-right: 12px;

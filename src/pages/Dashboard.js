@@ -176,7 +176,7 @@ export default function Dashboard() {
       {/* ── PAGE HEADER ── */}
       <div className="page-header">
         <div className="page-header-inner">
-          <div>
+          <div className="dashboard-header-copy">
             <Reveal delay={0.05} direction="none">
               <div className="greeting-text">Welcome back, {user?.name?.split(' ')[0] || 'there'}</div>
             </Reveal>
@@ -200,16 +200,16 @@ export default function Dashboard() {
           </div>
 
           <Reveal delay={0.32} direction="left">
-            <div className="header-actions">
+            <div className="header-actions dashboard-header-actions">
               <MagneticButton
-                className="btn btn-primary"
+                className="btn btn-primary dashboard-header-btn"
                 onClick={() => navigate('/orders')}
                 aria-label="Create new order"
               >
                 + New Order
               </MagneticButton>
               <MagneticButton
-                className="btn btn-secondary"
+                className="btn btn-secondary dashboard-header-btn"
                 onClick={() => navigate('/products')}
                 aria-label="Add new product"
               >
