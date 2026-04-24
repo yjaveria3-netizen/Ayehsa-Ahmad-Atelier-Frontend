@@ -62,46 +62,60 @@ export default function AuthCallback() {
 
 
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      minHeight: '100vh', background: 'var(--bg-void)',
-      flexDirection: 'column', gap: 24, position: 'relative', overflow: 'hidden'
-    }}>
+    <div className="callback-page">
       {/* Atmosphere */}
       <div className="vibe-noise" />
+      <div className="callback-page__orb callback-page__orb--gold" />
+      <div className="callback-page__orb callback-page__orb--cyan" />
+      <div className="callback-page__grid" />
 
-      {/* Pulsing logo */}
-      <motion.div
-        animate={{ scale: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-        style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}
-      >
-        <div className="tm-logo-sq" style={{ borderColor: 'var(--accent)', width: 36, height: 36 }}>
-          <div className="tm-logo-inner" style={{ background: 'var(--accent)', width: 14, height: 14 }} />
-        </div>
-        <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', fontWeight: 800, color: 'white' }}>
-          LibasTrack
-        </span>
-      </motion.div>
+      <div className="callback-shell">
+        <motion.div
+          className="callback-brand"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <motion.div
+            className="callback-brand__mark"
+            animate={{ scale: [1, 1.06, 1] }}
+            transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <div className="tm-logo-sq callback-brand__square">
+              <div className="tm-logo-inner callback-brand__inner" />
+            </div>
+          </motion.div>
 
-      {/* Spinner */}
-      <div className="callback-spinner">
-        <div className="callback-spinner-ring" />
-        <div className="callback-spinner-core" />
+          <div className="callback-brand__copy">
+            <div className="callback-brand__name">LibasTrack</div>
+            <div className="callback-brand__tag">Fashion brand workspace</div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="callback-card"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="callback-spinner-wrap">
+            <div className="callback-spinner">
+              <div className="callback-spinner-ring" />
+              <div className="callback-spinner-core" />
+            </div>
+          </div>
+
+          <div className="callback-card__eyebrow">Preparing your workspace</div>
+          <motion.p
+            key={statusMsg}
+            className="callback-card__status"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            {statusMsg}
+          </motion.p>
+        </motion.div>
       </div>
-
-      {/* Status message */}
-      <motion.p
-        key={statusMsg}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        style={{
-          color: 'var(--text-muted)', fontFamily: 'var(--font-body)',
-          fontSize: '0.88rem', letterSpacing: '0.05em'
-        }}
-      >
-        {statusMsg}
-      </motion.p>
     </div>
   );
 }
