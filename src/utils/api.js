@@ -13,6 +13,28 @@ const clearGetCache = () => {
   responseCache.clear();
 };
 
+const shouldRedirectToLogin = (err) => {
+  if (typeof window === 'undefined') return false;
+
+  const requestUrl = `${err.config?.baseURL || ''}${err.config?.url || ''}`;
+  const currentPath = window.location.pathname;
+
+  if (currentPath === '/login' || currentPath === '/auth/callback') {
+    return false;
+  }
+
+  // Session bootstrap/auth endpoints can legitimately return 401.
+  if (
+    requestUrl.includes('/auth/me') ||
+    requestUrl.includes('/auth/refresh') ||
+    requestUrl.includes('/auth/google')
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
@@ -74,9 +96,13 @@ api.interceptors.response.use(
     const method = (err.config?.method || '').toLowerCase();
 
     if (err.response?.status === 401) {
-      console.warn('Authentication required - redirecting to login');
+      console.warn('Authentication required');
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
+      }
+
+      if (shouldRedirectToLogin(err)) {
+        console.warn('Redirecting to login');
         window.location.href = '/login';
       }
     } else if (err.code === 'ECONNABORTED') {
