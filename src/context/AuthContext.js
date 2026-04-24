@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import api from '../utils/api';
 
 const AuthContext = createContext(null);
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -45,8 +46,8 @@ export const AuthProvider = ({ children }) => {
 
   // ── ✅ FIXED Google OAuth ────────────────
   const loginWithGoogle = () => {
-    // DIRECT redirect (NO axios call)
-    window.location.href = "https://libastrack-backend.railway.app/api/auth/google";
+    const authUrl = `${API_BASE_URL.replace(/\/api\/?$/, '')}/api/auth/google`;
+    window.location.href = authUrl;
   };
 
   // ── Logout ──────────────────────────────
