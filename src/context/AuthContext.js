@@ -7,14 +7,13 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ── Fetch user profile from backend ──────────────────
+  // ── Fetch user profile ──────────────────
   const fetchUser = useCallback(async () => {
     try {
       const res = await api.get('/auth/me');
       setUser(res.data.user);
       return res.data.user;
     } catch (err) {
-      // Clear auth only when backend confirms session is invalid.
       if (err?.response?.status === 401) {
         localStorage.removeItem('token');
         setUser(null);
@@ -25,40 +24,41 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // ── Auto-restore session on mount ────────────────────
+  // ── Auto restore session ────────────────
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       fetchUser();
-      // Slide the session window: refresh token silently every 24 hours
+
       const refreshInterval = setInterval(async () => {
         try {
           const res = await api.post('/auth/refresh');
           if (res.data.token) localStorage.setItem('token', res.data.token);
-        } catch { /* token will expire naturally */ }
+        } catch {}
       }, 24 * 60 * 60 * 1000);
+
       return () => clearInterval(refreshInterval);
     } else {
       setLoading(false);
     }
   }, [fetchUser]);
 
-  // ── Google OAuth initiation ───────────────────────────
-  const loginWithGoogle = async () => {
-    const res = await api.get('/auth/google');
-    window.location.href = res.data.url;
+  // ── ✅ FIXED Google OAuth ────────────────
+  const loginWithGoogle = () => {
+    // DIRECT redirect (NO axios call)
+    window.location.href = "https://libastrack-backend.railway.app/api/auth/google";
   };
 
-  // ── Logout ────────────────────────────────────────────
+  // ── Logout ──────────────────────────────
   const logout = async () => {
-    try { await api.post('/auth/logout'); } catch { /* ignore */ }
+    try { await api.post('/auth/logout'); } catch {}
     localStorage.removeItem('token');
     setUser(null);
   };
 
   const refreshUser = () => fetchUser();
 
-  // ── Derived values ────────────────────────────────────
+  // ── Derived values ──────────────────────
   const currency    = user?.brand?.currency || 'PKR';
   const storageType = user?.storageType || null;
   const localPath   = user?.localPath   || null;
