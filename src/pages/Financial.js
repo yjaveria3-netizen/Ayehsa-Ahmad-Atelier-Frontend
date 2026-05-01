@@ -3,7 +3,7 @@ import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Reveal, StaggerContainer, StaggerItem, MagneticButton, GlowCard, ease } from '../components/Motion';
 import useDebounce from '../hooks/useDebounce';
 import { QueryErrorState, StatsLoadingGrid, TableLoadingRows } from '../components/QueryState';
@@ -83,207 +83,310 @@ export default function Financial() {
 
   return (
     <div className="financial-page animate-vibe">
+
+      {/* ── Page Header ── */}
       <div className="page-header">
         <div className="page-header-inner">
           <Reveal delay={0.05} direction="none">
             <div>
-              <h1 className="page-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 800 }}>Accounts</h1>
-              <p className="page-subtitle" style={{ color: 'var(--text-muted)' }}>
+              <h1 className="page-title">Accounts</h1>
+              <p className="page-subtitle">
                 {total} recorded movements in your balance
                 {user?.storageType === 'google_drive' && user?.driveConnected && (
-                    <span className="sync-status-indicator" style={{ color: 'var(--accent)' }}>
-                      <motion.span className="sync-dot active" style={{ background: 'var(--accent)' }} animate={{ scale:[1,1.5,1], opacity:[0.8,0.3,0.8] }} transition={{ duration:2, repeat:Infinity }} />
-                      Vault Secured
-                    </span>
+                  <span style={{ marginLeft: 14, color: 'var(--accent)', fontSize: '0.75rem', fontWeight: 700 }}>
+                    ● Vault Secured
+                  </span>
                 )}
               </p>
             </div>
           </Reveal>
           <Reveal delay={0.15} direction="left">
-            <MagneticButton className="btn" onClick={openAdd} style={{ background: 'var(--accent)', color: 'white', fontWeight: 700 }}>+ Record Cashflow</MagneticButton>
+            <button className="btn btn-primary" onClick={openAdd}>
+              + Record Cashflow
+            </button>
           </Reveal>
         </div>
       </div>
 
       <div className="page-body">
+
+        {/* ── Stats Row ── */}
         {loading && !stats ? (
           <StatsLoadingGrid count={3} />
         ) : stats && (
           <StaggerContainer staggerDelay={0.06} delayStart={0.1}>
-            <div className="stats-grid">
-              <StaggerItem><GlowCard className="stat-card glass hover-glow" style={{ border: '1px solid var(--accent-soft)' }}>
-                <div className="stat-label" style={{ color: 'var(--text-muted)', fontSize: '0.6rem', letterSpacing: '0.2em' }}>Realized Revenue</div>
-                <div className="stat-value" style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', fontWeight: 800, color: '#34D399' }}>{formatCurrency(stats.completedRevenue)}</div>
-              </GlowCard></StaggerItem>
-              <StaggerItem><GlowCard className="stat-card glass hover-glow" style={{ border: '1px solid var(--accent-soft)' }}>
-                <div className="stat-label" style={{ color: 'var(--text-muted)', fontSize: '0.6rem', letterSpacing: '0.2em' }}>Receivables</div>
-                <div className="stat-value" style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', fontWeight: 800, color: '#FBBF24' }}>{formatCurrency(stats.pendingRevenue)}</div>
-              </GlowCard></StaggerItem>
-              <StaggerItem><GlowCard className="stat-card glass hover-glow" style={{ border: '1px solid var(--accent-soft)' }}>
-                <div className="stat-label" style={{ color: 'var(--text-muted)', fontSize: '0.6rem', letterSpacing: '0.2em' }}>Total Volume</div>
-                <div className="stat-value" style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', fontWeight: 800 }}>{stats.total}</div>
-              </GlowCard></StaggerItem>
+            <div className="stats-grid" style={{ marginBottom: 28 }}>
+              {[
+                { label: 'Realized Revenue', value: formatCurrency(stats.completedRevenue || 0), color: '#34D399' },
+                { label: 'Receivables', value: formatCurrency(stats.pendingRevenue || 0), color: '#FBBF24' },
+                { label: 'Total Volume', value: stats.total || 0, color: 'var(--text-primary)', isNumber: true },
+              ].map((s) => (
+                <StaggerItem key={s.label}>
+                  <GlowCard className="stat-card card glass">
+                    <div className="stat-label">{s.label}</div>
+                    <div className="stat-value" style={{ color: s.color, fontSize: s.isNumber ? '2rem' : '1.5rem' }}>
+                      {s.value}
+                    </div>
+                  </GlowCard>
+                </StaggerItem>
+              ))}
             </div>
           </StaggerContainer>
         )}
 
-        {/* Analytics Section */}
+        {/* ── Analytics Grid ── */}
         {stats?.byMethod?.length > 0 && (
-          <div className="financial-analytics-grid" style={{ marginTop: 32 }}>
-            <div className="method-cards">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, marginBottom: 32 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 16 }}>
               {stats.byMethod.map(m => (
-                <div key={m._id} className="card method-stat-box glass" style={{ border: '1px solid var(--accent-soft)' }}>
-                  <div className="label" style={{ color: 'var(--text-muted)', fontSize: '0.6rem', letterSpacing: '0.1em' }}>{m._id}</div>
-                  <div className="val" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>{m.count} <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>Txns</span></div>
-                  <div className="amount cell-primary" style={{ color: 'var(--accent)', fontWeight: 800 }}>{formatCurrency(m.total)}</div>
+                <div key={m._id} className="card glass" style={{ padding: 16, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text-faint)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>{m._id}</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--accent)' }}>{formatCurrency(m.total)}</div>
+                  <div style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: 2 }}>{m.count} txns</div>
                 </div>
               ))}
             </div>
-            <div className="card glass chart-card-mini" style={{ border: '1px solid var(--accent-soft)' }}>
-              <div className="chart-container-mini">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={stats.byMethod}
-                      dataKey="total"
-                      nameKey="_id"
-                      cx="50%" cy="50%"
-                      innerRadius={50}
-                      outerRadius={75}
-                      paddingAngle={5}
-                      stroke="none"
-                    >
-                      {stats.byMethod.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      formatter={(val) => formatCurrency(val)}
-                      contentStyle={{ background: 'var(--bg-popover)', border: '1px solid var(--accent-soft)', borderRadius: '12px', color: 'white', boxShadow: 'var(--shadow-lg)' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+            <div className="card glass" style={{ height: 180, padding: 12 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={stats.byMethod}
+                    dataKey="total"
+                    nameKey="_id"
+                    cx="50%" cy="50%"
+                    innerRadius={45}
+                    outerRadius={65}
+                    paddingAngle={5}
+                    stroke="none"
+                  >
+                    {stats.byMethod.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(val) => formatCurrency(val)}
+                    contentStyle={{ background: 'var(--bg-popover)', border: '1px solid var(--accent-soft)', borderRadius: '12px', color: 'white', fontSize: '0.8rem' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </div>
         )}
 
-        <div className="table-toolbar" style={{ marginTop: 32 }}>
-           <div className="filter-group">
-            <div className="search-input-wrapper glass" style={{ border: '1px solid var(--accent-soft)' }}>
-              <span className="search-icon" style={{ color: 'var(--accent)' }}>⌕</span>
-              <input className="form-input search-input" style={{ background: 'transparent', border: 'none' }} placeholder="Search Reference, Order ID..." value={searchInput} onChange={e => { setSearchInput(e.target.value); setPage(1); }} />
-            </div>
-            <select className="form-select glass" style={{ border: '1px solid var(--accent-soft)' }} value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }}>
-              <option value="">Status: All Payments</option>
-              {PAYMENT_STATUSES.map(s => <option key={s}>{s}</option>)}
-            </select>
+        {/* ── Toolbar ── */}
+        <div className="commerce-toolbar" style={{ marginBottom: 24, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+          <div className="search-input-wrapper" style={{ maxWidth: 380, flex: 1 }}>
+            <span className="search-icon">🔍</span>
+            <input
+              className="form-input search-input"
+              placeholder="Search reference, order, ID…"
+              value={searchInput}
+              onChange={e => { setSearchInput(e.target.value); setPage(1); }}
+            />
           </div>
+          <select
+            className="form-select"
+            style={{ width: 200, padding: '10px 18px', fontSize: '0.85rem' }}
+            value={statusFilter}
+            onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
+          >
+            <option value="">All Payment Statuses</option>
+            {PAYMENT_STATUSES.map(s => <option key={s}>{s}</option>)}
+          </select>
         </div>
 
+        {/* ── Table ── */}
         <Reveal delay={0.05}>
-          <div className="card glass overflow-hidden" style={{ border: '1px solid var(--accent-soft)', marginTop: 24 }}>
-            <div className="table-container">
-              {loading ? (
-                <TableLoadingRows cols={7} rows={6} />
-              ) : loadError ? (
-                <QueryErrorState message={loadError} onRetry={fetchData} />
-              ) : transactions.length === 0 ? (
-                <div className="empty-state">
-                  <div className="empty-state-icon" style={{ color: 'var(--accent)' }}>$</div>
-                  <h3 style={{ fontFamily: 'var(--font-display)' }}>No transactions recorded</h3>
-                  <p style={{ color: 'var(--text-muted)' }}>Maintain your atelier's cashflow by adding payments here.</p>
-                </div>
-              ) : (
-                <table>
-                  <thead>
-                    <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
-                      <th>Identity</th><th>Reference</th><th>Value</th><th>Method</th><th>Process Status</th><th>Date</th><th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transactions.map((t, idx) => (
-                      <motion.tr 
-                        key={t._id} 
-                        initial={{ opacity:0, y:8 }} 
-                        animate={{ opacity:1, y:0 }} 
-                        transition={{ delay: idx * 0.03, duration:0.4 }}
-                        style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}
-                      >
-                        <td><span className="id-chip" style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>{t.transactionId}</span></td>
-                        <td><span className="id-chip" style={{ background: 'rgba(255,255,255,0.05)', color: 'white' }}>{t.orderId}</span></td>
-                        <td className="cell-primary" style={{ fontWeight: 800 }}>{formatCurrency(t.price)}</td>
-                        <td style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: 600 }}>{t.paymentMethod}</td>
-                        <td><span className={`badge badge-${t.paymentStatus.toLowerCase()}`} style={{ textTransform: 'uppercase', fontSize: '0.65rem' }}>{t.paymentStatus}</span></td>
-                        <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{new Date(t.transactionDate).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}</td>
-                        <td>
-                          <div className="action-btns">
-                            <button className="btn-icon-sm" onClick={() => openEdit(t)} style={{ color: 'var(--accent)' }}>✎</button>
-                            <button className="btn-icon-sm" onClick={() => handleDelete(t._id)} style={{ color: '#F87171' }}>✕</button>
-                          </div>
-                        </td>
-                      </motion.tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
+          <div className="table-container">
+            {loading ? (
+              <TableLoadingRows cols={7} rows={7} />
+            ) : loadError ? (
+              <QueryErrorState message={loadError} onRetry={fetchData} />
+            ) : transactions.length === 0 ? (
+              <div className="empty-state">
+                <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>💳</div>
+                <h3>No transactions recorded</h3>
+                <p>Maintain your atelier's cashflow by adding payments here.</p>
+              </div>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tx ID</th>
+                    <th>Order Ref</th>
+                    <th>Value</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.map((t, idx) => (
+                    <motion.tr
+                      key={t._id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.03, duration: 0.35 }}
+                    >
+                      <td>
+                        <span className="id-chip">{t.transactionId}</span>
+                      </td>
+                      <td>
+                        <span className="id-chip" style={{ background: 'var(--bg-layer2)', color: 'var(--text-muted)' }}>{t.orderId}</span>
+                      </td>
+                      <td className="cell-primary" style={{ fontWeight: 800 }}>
+                        {formatCurrency(t.price)}
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: 600 }}>{t.paymentMethod}</div>
+                      </td>
+                      <td>
+                        <span className={`badge badge-${t.paymentStatus.toLowerCase()}`} style={{ fontSize: '0.6rem' }}>
+                          {t.paymentStatus}
+                        </span>
+                      </td>
+                      <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                        {new Date(t.transactionDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => openEdit(t)}
+                            style={{
+                              width: 32, height: 32, borderRadius: 8,
+                              border: '1px solid var(--accent-border)',
+                              background: 'var(--accent-soft)', color: 'var(--accent)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              cursor: 'pointer', fontSize: '0.85rem',
+                            }}
+                          >✏️</motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleDelete(t._id)}
+                            style={{
+                              width: 32, height: 32, borderRadius: 8,
+                              border: '1px solid rgba(201,122,109,0.2)',
+                              background: 'rgba(201,122,109,0.05)', color: '#C97A6D',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              cursor: 'pointer', fontSize: '0.85rem',
+                            }}
+                          >🗑️</motion.button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+            {/* Pagination */}
             {totalPages > 1 && (
-              <div className="pagination" style={{ borderTop: '1px solid rgba(255,255,255,0.03)' }}>
+              <div className="pagination">
                 <span className="page-info">Page {page} of {totalPages}</span>
-                <button className="page-btn glass" onClick={() => setPage(p => p-1)} disabled={page===1}>←</button>
-                <button className="page-btn glass" onClick={() => setPage(p => p+1)} disabled={page===totalPages}>→</button>
+                <button className="page-btn" onClick={() => setPage(p => p - 1)} disabled={page === 1}>← Prev</button>
+                <button className="page-btn" onClick={() => setPage(p => p + 1)} disabled={page === totalPages}>Next →</button>
               </div>
             )}
           </div>
         </Reveal>
       </div>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={e => e.target===e.currentTarget && setShowModal(false)}>
-          <div className="modal glass sm animate-vibe" style={{ border: '1px solid var(--accent-border)' }}>
-            <div className="modal-header">
-              <h2 className="modal-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 800 }}>{editing ? 'Optimize Transaction' : 'Record New Entry'}</h2>
-              <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
-            </div>
-            <div className="modal-body">
-              <form onSubmit={handleSave}>
-                <div className="form-grid-1">
-                  <div className="form-group">
-                    <label className="form-label">Reference (Order ID) *</label>
-                    <input className="form-input glass" style={{ border: '1px solid var(--accent-soft)' }} value={form.orderId} onChange={e => set('orderId', e.target.value)} placeholder="ORD-XXXX" required />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Total Value *</label>
-                    <input className="form-input glass" style={{ border: '1px solid var(--accent-soft)' }} type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder="0" required />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Liquid Method</label>
-                    <select className="form-select glass" style={{ border: '1px solid var(--accent-soft)' }} value={form.paymentMethod} onChange={e => set('paymentMethod', e.target.value)}>
-                      {PAYMENT_METHODS.map(m => <option key={m}>{m}</option>)}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Current Status</label>
-                    <select className="form-select glass" style={{ border: '1px solid var(--accent-soft)' }} value={form.paymentStatus} onChange={e => set('paymentStatus', e.target.value)}>
-                      {PAYMENT_STATUSES.map(s => <option key={s}>{s}</option>)}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Identity Date</label>
-                    <input className="form-input glass" style={{ border: '1px solid var(--accent-soft)' }} type="date" value={form.transactionDate} onChange={e => set('transactionDate', e.target.value)} />
-                  </div>
-                </div>
-                <div className="form-actions" style={{ marginTop:24 }}>
-                  <button type="button" className="btn btn-secondary glass" onClick={() => setShowModal(false)}>Cancel</button>
-                  <button type="submit" className="btn" style={{ background: 'var(--accent)', color: 'white', fontWeight: 700 }} disabled={saving}>{saving ? 'Syncing...' : 'Finalize Entry'}</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      {/* ── Add / Edit Modal ── */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={e => e.target === e.currentTarget && setShowModal(false)}
+          >
+            <motion.div
+              className="modal glass"
+              initial={{ scale: 0.92, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+              style={{ border: '1px solid var(--accent-border)', maxWidth: 460 }}
+            >
+              <div className="modal-header">
+                <h2 className="modal-title">
+                  {editing ? '✏️ Optimize Record' : '+ Record Cashflow'}
+                </h2>
+                <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
+              </div>
 
+              <div className="modal-body">
+                <form onSubmit={handleSave}>
+
+                  <div className="form-group">
+                    <label className="form-label">Order Reference *</label>
+                    <input
+                      className="form-input"
+                      value={form.orderId}
+                      onChange={e => set('orderId', e.target.value)}
+                      placeholder="ORD-XXXX"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label className="form-label">Total Value *</label>
+                      <input
+                        className="form-input"
+                        type="number"
+                        value={form.price}
+                        onChange={e => set('price', e.target.value)}
+                        placeholder="0"
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Identity Date</label>
+                      <input
+                        className="form-input"
+                        type="date"
+                        value={form.transactionDate}
+                        onChange={e => set('transactionDate', e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label className="form-label">Liquid Method</label>
+                      <select className="form-select" value={form.paymentMethod} onChange={e => set('paymentMethod', e.target.value)}>
+                        {PAYMENT_METHODS.map(m => <option key={m}>{m}</option>)}
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Process Status</label>
+                      <select className="form-select" value={form.paymentStatus} onChange={e => set('paymentStatus', e.target.value)}>
+                        {PAYMENT_STATUSES.map(s => <option key={s}>{s}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 28 }}>
+                    <button type="button" className="btn btn-ghost" onClick={() => setShowModal(false)}>
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn btn-primary" disabled={saving}>
+                      {saving ? 'Syncing…' : editing ? 'Finalize Record' : 'Record Entry'}
+                    </button>
+                  </div>
+
+                </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

@@ -216,503 +216,341 @@ export default function Dashboard() {
   /* Chart Colors */
   const COLORS = ['var(--accent)', 'var(--secondary)', 'var(--gold)', 'var(--emerald)', '#6366f1'];
 
+
   return (
     <div className="dashboard-wrapper">
       {/* PAGE HEADER */}
-      <div className="page-header">
+      <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0 }}>
         <div className="page-header-inner">
           <div className="dashboard-header-copy">
             <Reveal delay={0.05} direction="none">
               <div className="greeting-text">
-                <Sparkles size={16} style={{ marginRight: 8, color: 'var(--accent)' }} />
-                Welcome back, {user?.name?.split(' ')[0] || 'there'}
+                <div className="dashboard-live-indicator" style={{ background: 'var(--accent-soft)', padding: '4px 12px', border: '1px solid var(--accent-border)' }}>
+                  <Activity size={12} className="pulse" />
+                  <span style={{ fontSize: '0.65rem', fontWeight: 800 }}>SYSTEM ACTIVE</span>
+                </div>
+                <span style={{ marginLeft: 12, opacity: 0.6 }}>{today}</span>
               </div>
             </Reveal>
 
-            <SplitText
-              text={brand.name || 'Dashboard'}
-              tag="h1"
-              className="page-title"
-              delay={0.08}
-              stagger={0.05}
-            />
-
-            <Reveal delay={0.28} direction="up">
-              <p className="page-subtitle">
-                {brand.category && (
-                  <span className="brand-badge">{brand.category}</span>
-                )}
-                Your brand is performing beautifully — {today}
-              </p>
-            </Reveal>
+            <div style={{ marginTop: 16 }}>
+              <Reveal delay={0.1} direction="up">
+                <span className="premium-gradient-text" style={{ fontSize: '1rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                  {brand.name || 'LibasTrack'}
+                </span>
+              </Reveal>
+              <SplitText
+                text={`Aisha Atelier`}
+                tag="h1"
+                className="page-title"
+                style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', marginTop: 8, marginBottom: 8 }}
+                delay={0.2}
+                stagger={0.04}
+              />
+              <Reveal delay={0.5} direction="up">
+                <p className="page-subtitle" style={{ fontSize: '1.1rem', maxWidth: 600 }}>
+                  Welcome back, {user?.name?.split(' ')[0] || 'Creative Director'}. Your brand's performance metrics are optimized and ready for review.
+                </p>
+              </Reveal>
+            </div>
           </div>
 
-          <Reveal delay={0.32} direction="left">
-            <div className="header-actions dashboard-header-actions">
-              <MagneticButton
-                className="btn btn-primary dashboard-header-btn"
+          <Reveal delay={0.6} direction="left">
+            <div className="header-actions dashboard-header-actions" style={{ alignSelf: 'flex-end', marginBottom: 24 }}>
+              <button
+                className="btn btn-primary"
                 onClick={() => navigate('/orders')}
-                aria-label="Create new order"
+                style={{ height: 56, padding: '0 32px', borderRadius: 16, fontSize: '0.95rem', fontWeight: 700 }}
               >
-                <Plus size={18} />
+                <Plus size={20} />
                 New Order
-              </MagneticButton>
-              <MagneticButton
-                className="btn btn-secondary dashboard-header-btn"
-                onClick={() => navigate('/products')}
-                aria-label="Add new product"
-              >
-                <PackagePlus size={18} />
-                Add Product
-              </MagneticButton>
+              </button>
             </div>
           </Reveal>
         </div>
       </div>
 
+
       {/* PAGE BODY */}
-      <div className="page-body">
+      <div className="page-body" style={{ paddingTop: 0 }}>
         {loading ? (
-          <>
-            {/* Skeleton state */}
-            <div className="stats-container">
-              <StatsLoadingGrid />
-            </div>
-            <div className="page-loader" style={{ marginTop: 40 }}>
-              <div className="spinner" aria-label="Loading dashboard..." />
-            </div>
-          </>
+          <div className="page-loader" style={{ height: '50vh' }}>
+            <div className="spinner" />
+          </div>
         ) : loadError ? (
           <QueryErrorState message={loadError} onRetry={fetchStats} />
         ) : (
-          <>
-            {/* STAT CARDS */}
-            <StaggerContainer
-              staggerDelay={0.07}
-              delayStart={0.05}
-              className="stats-container"
-            >
-              <div className="stats-grid" role="list" aria-label="Key metrics">
-                {statCards.map((s, i) => {
-                  const IconComponent = STAT_ICONS[s.label];
+          <StaggerContainer
+            staggerDelay={0.08}
+            delayStart={0.1}
+            className="bento-grid"
+            style={{ perspective: 1200 }}
+          >
+            {/* HERO METRICS - Tile 1-4 */}
+            {statCards.map((s, i) => {
+              const IconComponent = STAT_ICONS[s.label];
+              return (
+                <StaggerItem key={s.label} className="bento-tile bento-tile--hero">
+                  <div 
+                    className="glass-premium" 
+                    style={{ height: '100%', padding: 28, borderRadius: 24, '--aura-color': s.color }}
+                  >
+                    <div className="card-noise" />
+                    <div className="card-inner-glow" />
+                    
+                    <div className="stat-card__header" style={{ marginBottom: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div className="stat-icon-floating" style={{ background: s.gradient, width: 48, height: 48, borderRadius: 16, display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center', color: 'white', boxShadow: '0 8px 16px rgba(0,0,0,0.2)' }}>
+                        {IconComponent && <IconComponent size={24} />}
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div className="stat-label" style={{ fontSize: '0.65rem', letterSpacing: '0.2em', fontWeight: 900, opacity: 0.5, textTransform: 'uppercase' }}>{s.label}</div>
+                        <div className={`stat-sub ${s.trend === 'up' ? 'up' : 'neutral'}`} style={{ fontSize: '0.75rem', fontWeight: 800, marginTop: 4 }}>
+                          {s.trend === 'up' ? '↑ 14.2%' : 'STABLE'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="stat-value" style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'var(--font-display)', marginBottom: 4, letterSpacing: '-0.02em' }}>
+                      {s.isCurrency
+                        ? formatCurrency(s.value)
+                        : <AnimatedCounter value={s.value} delay={0.5 + i * 0.1} />}
+                    </div>
+                    
+                    <div style={{ height: 4, width: 40, background: s.color, borderRadius: 2, opacity: 0.4 }} />
+                  </div>
+                </StaggerItem>
+              );
+            })}
+
+            {/* REVENUE CHART - Tile 5 */}
+            <StaggerItem className="bento-tile bento-tile--chart">
+              <div 
+                className="glass-premium" 
+                style={{ height: '100%', padding: 32, borderRadius: 28 }}
+              >
+                <div className="card-noise" />
+                <div className="card-inner-glow" />
+                <div className="card-header" style={{ marginBottom: 40, display: 'flex', justifyContent: 'space-between' }}>
+                  <div className="card-header__left">
+                    <div className="stat-icon-floating" style={{ background: 'var(--accent-soft)', color: 'var(--accent)', width: 44, height: 44, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Activity size={22} />
+                    </div>
+                    <div style={{ marginLeft: 16 }}>
+                       <h2 className="card-title" style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '-0.01em' }}>Revenue Growth</h2>
+                       <p className="card-subtitle" style={{ fontSize: '0.85rem', opacity: 0.4 }}>Institutional performance metrics</p>
+                    </div>
+                  </div>
+                  <div className="dashboard-live-indicator" style={{ background: 'var(--accent-soft)', border: '1px solid var(--accent-border)', height: 28 }}>
+                    <Wifi size={12} />
+                    <span style={{ fontSize: '0.6rem', fontWeight: 800 }}>LIVE SYNC</span>
+                  </div>
+                </div>
+
+                <div className="chart-container" style={{ height: 360 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={sparkData}>
+                      <defs>
+                        <linearGradient id="vibeCyan" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.5} />
+                          <stop offset="95%" stopColor="var(--accent)" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid vertical={false} strokeDasharray="6 6" stroke="rgba(255,255,255,0.03)" />
+                      <XAxis dataKey="m" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 13, fontWeight: 700 }} dy={15} />
+                      <Tooltip content={<PremiumTooltip formatCurrency={formatCurrency} />} cursor={{ stroke: 'var(--accent)', strokeWidth: 2, strokeDasharray: '6 6' }} />
+                      <Area type="monotone" dataKey="v" stroke="var(--accent)" strokeWidth={5} fill="url(#vibeCyan)" animationDuration={2500} dot={false} activeDot={{ r: 8, fill: 'var(--accent)', stroke: 'white', strokeWidth: 3 }} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </StaggerItem>
+
+            {/* MODULE SHORTCUTS - Tile 6 */}
+            <StaggerItem className="bento-tile bento-tile--wide">
+              <div className="grid-2x2" style={{ height: '100%', gap: 24 }}>
+                {modules.map((mod) => {
+                  const ModIcon = MODULE_ICONS[mod.title];
                   return (
-                    <StaggerItem key={s.label} role="listitem">
-                      <GlowCard
-                        className="stat-card card glass"
-                        aria-label={`${s.label}: ${s.isCurrency ? formatCurrency(s.value) : s.value}`}
-                      >
-                        {/* Icon + label row */}
-                        <div className="stat-card__header">
-                          <div className="stat-label">{s.label}</div>
-                          <div 
-                            className="stat-card__icon"
-                            style={{ background: s.gradient }}
-                          >
-                            {IconComponent && <IconComponent size={18} />}
-                          </div>
+                    <div
+                      key={mod.title}
+                      className="glass-premium"
+                      onClick={() => navigate(mod.to)}
+                      style={{ height: '100%', padding: 28, borderRadius: 24, cursor: 'pointer' }}
+                    >
+                      <div className="card-noise" />
+                      <div className="card-inner-glow" />
+                      <div className="module-card__header" style={{ marginBottom: 16 }}>
+                        <div className="module-num" style={{ fontSize: '0.65rem', fontWeight: 900, opacity: 0.3 }}>{mod.num}</div>
+                        <div className="stat-icon-floating" style={{ color: mod.color }}>
+                          {ModIcon && <ModIcon size={24} />}
                         </div>
-
-                        {/* Value */}
-                        <div className="stat-value">
-                          {s.isCurrency
-                            ? formatCurrency(s.value)
-                            : s.isPct
-                              ? `${s.value}%`
-                              : <AnimatedCounter value={s.value} delay={0.3 + i * 0.1} />}
-                        </div>
-
-                        {/* Trend bar */}
-                        <div className="stat-card__progress">
-                          <motion.div
-                            className="stat-card__progress-fill"
-                            initial={{ width: 0 }}
-                            animate={{ width: s.trend === 'up' ? '72%' : '45%' }}
-                            transition={{ duration: 1.4, delay: 0.4 + i * 0.1, ease: 'easeOut' }}
-                            style={{ background: s.gradient }}
-                          />
-                        </div>
-
-                        {s.trend === 'up' && (
-                          <div className="stat-sub up">
-                            <TrendingUp size={12} />
-                            Trending up
-                          </div>
-                        )}
-                      </GlowCard>
-                    </StaggerItem>
+                      </div>
+                      <div className="module-title" style={{ fontSize: '1.2rem', fontWeight: 900 }}>{mod.title}</div>
+                      <div className="module-desc" style={{ fontSize: '0.85rem', opacity: 0.5, lineHeight: 1.4 }}>{mod.desc}</div>
+                      <div className="module-card__arrow" style={{ color: mod.color, bottom: 24, right: 24 }}>
+                        <ArrowRight size={22} />
+                      </div>
+                    </div>
                   );
                 })}
               </div>
-            </StaggerContainer>
+            </StaggerItem>
 
-            {/* MAIN GRID */}
-            <div className="dashboard-grid">
-              {/* Left column */}
-              <div className="modules-grid-wrap">
-                {/* Revenue chart */}
-                <Reveal delay={0.15} direction="up">
-                  <div className="card glass dashboard-chart-card">
-                    <div className="card-header">
-                      <div className="card-header__left">
-                        <div className="card-header__icon">
-                          <Activity size={18} />
-                        </div>
-                        <h2 className="card-title">Revenue Trajectory</h2>
-                      </div>
-                      <div className="dashboard-live-indicator">
-                        <Wifi size={12} />
-                        <span>Live</span>
-                      </div>
-                    </div>
-
-                    <div className="chart-container" aria-label="Revenue chart for the last 7 months">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={sparkData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-                          <defs>
-                            <linearGradient id="vibeCyan" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.28} />
-                              <stop offset="95%" stopColor="var(--accent)" stopOpacity={0} />
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid
-                            vertical={false}
-                            strokeDasharray="4 4"
-                            stroke="rgba(255,255,255,0.04)"
-                          />
-                          <XAxis
-                            dataKey="m"
-                            axisLine={false} tickLine={false}
-                            tick={{ fill: 'rgba(255,255,255,0.22)', fontSize: 11, fontWeight: 600 }}
-                          />
-                          <Tooltip
-                            content={<PremiumTooltip formatCurrency={formatCurrency} />}
-                            cursor={{ stroke: 'var(--accent)', strokeWidth: 1, strokeDasharray: '4 4' }}
-                          />
-                          <Area
-                            type="monotone"
-                            dataKey="v"
-                            stroke="var(--accent)"
-                            strokeWidth={3}
-                            fill="url(#vibeCyan)"
-                            animationDuration={1800}
-                            dot={false}
-                            activeDot={{ r: 5, fill: 'var(--accent)', stroke: 'none' }}
-                          />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
+            {/* COLLECTION PROGRESS - Tile 7 */}
+            <StaggerItem className="bento-tile bento-tile--wide">
+              <div 
+                className="glass-premium" 
+                style={{ height: '100%', padding: 36, borderRadius: 28, cursor: 'pointer' }} 
+                onClick={() => navigate('/checklist')}
+              >
+                <div className="card-noise" />
+                <div className="card-inner-glow" />
+                <div className="collection-card__header" style={{ marginBottom: 36, display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div className="stat-icon-floating" style={{ background: 'var(--secondary-soft)', color: 'var(--secondary)', width: 44, height: 44, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Clock size={24} />
                   </div>
-                </Reveal>
+                  <div className="section-label" style={{ fontSize: '0.65rem', letterSpacing: '0.25em', fontWeight: 900 }}>PHASE 07 • STRATEGIC</div>
+                </div>
+                
+                <h3 className="panel-value collection-card__title" style={{ fontSize: '2.2rem', fontWeight: 900, marginBottom: 32, letterSpacing: '-0.02em' }}>SS25 Luxury Pret</h3>
 
-                {/* Module quick links */}
-                <StaggerContainer staggerDelay={0.08} delayStart={0.25}>
-                  <div className="grid-2x2" role="list" aria-label="Module shortcuts">
-                    {modules.map((mod) => {
-                      const ModIcon = MODULE_ICONS[mod.title];
-                      return (
-                        <StaggerItem key={mod.title} role="listitem">
-                          <motion.div
-                            className="module-card card glass"
-                            onClick={() => navigate(mod.to)}
-                            whileHover={{ y: -4, transition: { duration: 0.22 } }}
-                            role="button"
-                            tabIndex={0}
-                            aria-label={`Go to ${mod.title}`}
-                            onKeyDown={(e) => e.key === 'Enter' && navigate(mod.to)}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            <div className="module-card__header">
-                              <div className="module-num">{mod.num}</div>
-                              <div 
-                                className="module-card__icon"
-                                style={{ color: mod.color }}
-                              >
-                                {ModIcon && <ModIcon size={20} />}
-                              </div>
-                            </div>
-                            <div className="module-title">{mod.title}</div>
-                            <div className="module-desc">{mod.desc}</div>
-                            {mod.sub && (
-                              <div className="module-sub" style={{ color: mod.color }}>
-                                {mod.sub}
-                              </div>
-                            )}
-                            <div className="module-card__arrow" style={{ color: mod.color }}>
-                              <ArrowRight size={18} />
-                            </div>
-                          </motion.div>
-                        </StaggerItem>
-                      );
-                    })}
-                  </div>
-                </StaggerContainer>
+                <div className="collection-card__progress" style={{ height: 16, background: 'rgba(255,255,255,0.03)', borderRadius: 99, marginBottom: 20, padding: 2, border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <motion.div
+                    className="collection-card__progress-fill"
+                    initial={{ width: 0 }}
+                    animate={{ width: '78%' }}
+                    transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1], delay: 1.2 }}
+                    style={{ background: 'linear-gradient(90deg, var(--secondary), var(--accent))', borderRadius: 99, height: '100%' }}
+                  />
+                </div>
+
+                <div className="collection-card__footer" style={{ fontSize: '0.9rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <CheckCircle2 size={18} style={{ color: 'var(--secondary)' }} />
+                  <span style={{ opacity: 0.7 }}>78% Critical Path Complete</span>
+                </div>
               </div>
+            </StaggerItem>
 
-              {/* Right sidebar panels */}
-              <div className="sidebar-panels">
-                {/* Delivery rate */}
-                <Reveal delay={0.5} direction="left">
-                  <div className="card glass mini-panel">
-                    <div className="mini-panel__header">
-                      <Truck size={16} style={{ color: 'var(--accent)' }} />
-                      <div className="panel-label">Delivery Rate</div>
-                    </div>
-                    <div className="panel-value">
-                      {stats?.orders?.total > 0 
-                        ? ((stats.orders.delivered / stats.orders.total) * 100).toFixed(1) 
-                        : 0}%
-                    </div>
-
-                    <div className="tm-db-chart" role="img" aria-label="Delivery rate sparkline chart">
-                      {[30, 55, 40, 80, 60, 100, stats?.orders?.total > 0 ? (stats.orders.delivered / stats.orders.total * 100) : 70].map((h, i) => (
-                        <motion.div
-                          key={i}
-                          className="tm-db-bar"
-                          initial={{ scaleY: 0 }}
-                          animate={{ scaleY: 1 }}
-                          transition={{ delay: 0.6 + i * 0.06, duration: 0.4, ease: 'easeOut' }}
-                          style={{
-                            height: `${Math.max(10, h)}%`,
-                            background: i === 5 ? 'var(--accent)' : 'var(--accent-soft)',
-                            transformOrigin: 'bottom',
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </Reveal>
-
-                {/* Collection progress */}
-                <Reveal delay={0.65}>
-                  <div
-                    className="card glass hover-glow collection-card"
-                    onClick={() => navigate('/checklist')}
-                    role="button"
-                    tabIndex={0}
-                    aria-label="View SS25 Luxury Pret checklist - 78% complete"
-                    onKeyDown={(e) => e.key === 'Enter' && navigate('/checklist')}
-                  >
-                    <div className="collection-card__header">
-                      <Clock size={16} style={{ color: 'var(--secondary)' }} />
-                      <div className="panel-label">Phase 7 Planning</div>
-                    </div>
-                    <div className="panel-value collection-card__title">SS25 Luxury Pret</div>
-
-                    {/* Progress bar */}
-                    <div className="collection-card__progress">
-                      <motion.div
-                        className="collection-card__progress-fill"
-                        initial={{ width: 0 }}
-                        animate={{ width: '78%' }}
-                        transition={{ duration: 1.4, ease: 'easeOut' }}
-                      />
-                    </div>
-
-                    <div className="collection-card__footer">
-                      <CheckCircle2 size={12} />
-                      78% complete - click to view checklist
-                    </div>
-                  </div>
-                </Reveal>
-
-                {/* Quick actions */}
-                <Reveal delay={0.8}>
-                  <div className="card glass quick-actions-card">
-                    <div className="section-label" id="quick-actions-label">
-                      <Sparkles size={14} style={{ color: 'var(--accent)' }} />
-                      Quick Actions
-                    </div>
-                    <nav aria-labelledby="quick-actions-label" className="quick-actions-list">
-                      {QUICK_ACTIONS.slice(0, 4).map(a => {
-                        const ActionIcon = a.IconComponent;
-                        return (
-                          <motion.button
-                            key={a.label}
-                            className="quick-action-button"
-                            onClick={() => navigate(a.to)}
-                            whileHover={{ x: 5 }}
-                            transition={{ duration: 0.18 }}
-                            aria-label={`${a.label} - ${a.desc}`}
-                          >
-                            <span className="action-icon" style={{ background: a.gradient }}>
-                              {ActionIcon && <ActionIcon size={16} />}
-                            </span>
-                            <div className="action-content">
-                              <div className="action-label">{a.label}</div>
-                              <div className="action-desc">{a.desc}</div>
-                            </div>
-                            <ChevronRight size={16} className="action-arrow" />
-                          </motion.button>
-                        );
-                      })}
-                    </nav>
-                  </div>
-                </Reveal>
+            {/* QUICK ACTIONS - Tile 8 */}
+            <StaggerItem className="bento-tile bento-tile--tall">
+              <div 
+                className="glass-premium" 
+                style={{ height: '100%', padding: 28, borderRadius: 28 }}
+              >
+                <div className="card-noise" />
+                <div className="card-inner-glow" />
+                <div className="section-label" style={{ marginBottom: 32, display: 'flex', alignItems: 'center', gap: 12, fontSize: '0.7rem', letterSpacing: '0.2em', fontWeight: 900 }}>
+                  <Sparkles size={18} style={{ color: 'var(--accent)' }} />
+                  COMMAND CENTER
+                </div>
+                <div className="quick-actions-list" style={{ gap: 20 }}>
+                  {QUICK_ACTIONS.slice(0, 4).map(a => {
+                    const ActionIcon = a.IconComponent;
+                    return (
+                      <button
+                        key={a.label}
+                        className="quick-action-button"
+                        onClick={() => navigate(a.to)}
+                        style={{ 
+                          width: '100%', display: 'flex', alignItems: 'center', 
+                          padding: 18, borderRadius: 18, border: '1px solid var(--border-glass)', 
+                          background: 'rgba(255,255,255,0.02)', position: 'relative', zIndex: 2,
+                          cursor: 'pointer', textAlign: 'left'
+                        }}
+                      >
+                        <div className="stat-icon-floating" style={{ background: a.gradient, width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                          {ActionIcon && <ActionIcon size={16} />}
+                        </div>
+                        <div className="action-content" style={{ marginLeft: 16, flex: 1 }}>
+                          <div className="action-label" style={{ fontSize: '0.95rem', fontWeight: 800 }}>{a.label}</div>
+                        </div>
+                        <ChevronRight size={16} className="action-arrow" style={{ opacity: 0.3 }} />
+                      </button>
+                    );
+                  })}
+                </div>
+                <div style={{ marginTop: 'auto', paddingTop: 32 }}>
+                   <div style={{ padding: 16, background: 'rgba(0,0,0,0.2)', borderRadius: 12, border: '1px solid var(--border-glass)' }}>
+                     <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--accent)', marginBottom: 4 }}>SECURITY ENFORCED</div>
+                     <div style={{ fontSize: '0.75rem', opacity: 0.4 }}>Sync: 02:45:12 PM</div>
+                   </div>
+                </div>
               </div>
-            </div>
+            </StaggerItem>
 
-            {/* EXTENDED ANALYTICS GRID */}
-            <div className="analytics-grid">
-              
-              {/* Best Selling Products */}
-              <Reveal delay={0.2} direction="up">
-                <div className="card glass analytics-card">
-                  <div className="analytics-card__header">
-                    <div className="analytics-card__icon" style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%)' }}>
-                      <TrendingUp size={18} />
-                    </div>
-                    <div className="section-label">Best Selling Items</div>
+            {/* ANALYTICS: BEST SELLERS - Tile 9 */}
+            <StaggerItem className="bento-tile bento-tile--wide">
+              <div 
+                className="glass-premium" 
+                style={{ height: '100%', padding: 32, borderRadius: 28 }}
+              >
+                <div className="card-noise" />
+                <div className="card-inner-glow" />
+                <div className="analytics-card__header" style={{ marginBottom: 32 }}>
+                  <div className="stat-icon-floating" style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%)', width: 40, height: 40, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                    <TrendingUp size={20} />
                   </div>
-                  {stats?.topProducts?.length > 0 ? (
-                    <div className="analytics-list">
-                      {stats.topProducts.map((p, i) => (
-                        <div key={p._id} className="analytics-list__item">
-                          <div className="analytics-list__rank">{String(i + 1).padStart(2, '0')}</div>
-                          <div className="analytics-list__info">
-                            <div className="analytics-list__name">{p.name || p._id}</div>
-                            <div className="analytics-list__meta">Sold: {p.sold}</div>
-                          </div>
-                          <div className="analytics-list__value" style={{ color: 'var(--accent)' }}>
-                            {formatCurrency(p.revenue)}
-                          </div>
+                  <div className="section-label" style={{ fontSize: '0.7rem', letterSpacing: '0.2em', fontWeight: 900, marginLeft: 16 }}>ELITE COLLECTIONS</div>
+                </div>
+                {stats?.topProducts?.length > 0 ? (
+                  <div className="analytics-list" style={{ gap: 14 }}>
+                    {stats.topProducts.slice(0, 3).map((p, i) => (
+                      <div key={p._id} className="analytics-list__item" style={{ background: 'rgba(255,255,255,0.02)', padding: '16px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.03)' }}>
+                        <div className="analytics-list__rank" style={{ fontSize: '0.8rem', fontWeight: 900, opacity: 0.2 }}>{String(i + 1).padStart(2, '0')}</div>
+                        <div className="analytics-list__info" style={{ marginLeft: 12 }}>
+                          <div className="analytics-list__name" style={{ fontSize: '1rem', fontWeight: 800 }}>{p.name || p._id}</div>
+                          <div className="analytics-list__meta" style={{ fontSize: '0.8rem', opacity: 0.4 }}>Market Dominance: {p.sold} units</div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="analytics-empty">No sales data yet.</div>
-                  )}
-                </div>
-              </Reveal>
-
-              {/* Customer LTV */}
-              <Reveal delay={0.3} direction="up">
-                <div className="card glass analytics-card">
-                  <div className="analytics-card__header">
-                    <div className="analytics-card__icon" style={{ background: 'linear-gradient(135deg, var(--emerald) 0%, #059669 100%)' }}>
-                      <Users size={18} />
-                    </div>
-                    <div className="section-label">Top Customers (LTV)</div>
-                  </div>
-                  {stats?.topCustomers?.length > 0 ? (
-                    <div className="analytics-list">
-                      {stats.topCustomers.map((c, i) => (
-                        <div key={c._id} className="analytics-list__item">
-                          <div className="analytics-list__avatar">
-                            {c.fullName?.charAt(0) || 'C'}
-                          </div>
-                          <div className="analytics-list__info">
-                            <div className="analytics-list__name">{c.fullName}</div>
-                            <div className="analytics-list__meta">{c.totalOrders} Orders | {c.segment || 'Regular'}</div>
-                          </div>
-                          <div className="analytics-list__value" style={{ color: 'var(--emerald)' }}>
-                            {formatCurrency(c.totalSpent)}
-                          </div>
+                        <div className="analytics-list__value" style={{ color: 'var(--accent)', fontWeight: 900, fontSize: '1.1rem' }}>
+                          {formatCurrency(p.revenue)}
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="analytics-empty">No customer data yet.</div>
-                  )}
-                </div>
-              </Reveal>
-
-              {/* Low Stock Alerts */}
-              <Reveal delay={0.4} direction="up">
-                <div className={`card glass analytics-card ${stats?.lowStock?.length > 0 ? 'analytics-card--alert' : ''}`}>
-                  <div className="analytics-card__header">
-                    <div 
-                      className="analytics-card__icon" 
-                      style={{ background: stats?.lowStock?.length > 0 
-                        ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' 
-                        : 'linear-gradient(135deg, var(--gold) 0%, #d97706 100%)' 
-                      }}
-                    >
-                      <AlertTriangle size={18} />
-                    </div>
-                    <div className="section-label" style={{ color: stats?.lowStock?.length > 0 ? '#ef4444' : 'inherit' }}>
-                      Low Stock Alerts
-                    </div>
+                      </div>
+                    ))}
                   </div>
-                  {stats?.lowStock?.length > 0 ? (
-                    <div className="analytics-list">
-                      {stats.lowStock.map((p) => (
-                        <div key={p._id} className="analytics-list__item">
-                          <div className="analytics-list__info">
-                            <div className="analytics-list__name">{p.name}</div>
-                            <div className="analytics-list__meta">SKU: {p.sku || 'N/A'}</div>
-                          </div>
-                          <div 
-                            className="analytics-list__badge"
-                            style={{ 
-                              background: p.stockQty === 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(251, 191, 36, 0.15)',
-                              color: p.stockQty === 0 ? '#ef4444' : '#fbbf24',
-                            }}
-                          >
-                            {p.stockQty} Left
-                          </div>
+                ) : (
+                  <div className="analytics-empty">Collecting trend data...</div>
+                )}
+              </div>
+            </StaggerItem>
+
+            {/* ANALYTICS: TOP CUSTOMERS - Tile 10 */}
+            <StaggerItem className="bento-tile bento-tile--wide">
+              <div 
+                className="glass-premium" 
+                style={{ height: '100%', padding: 32, borderRadius: 28 }}
+              >
+                <div className="card-noise" />
+                <div className="card-inner-glow" />
+                <div className="analytics-card__header" style={{ marginBottom: 32 }}>
+                  <div className="stat-icon-floating" style={{ background: 'linear-gradient(135deg, var(--emerald) 0%, #059669 100%)', width: 40, height: 40, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                    <Users size={20} />
+                  </div>
+                  <div className="section-label" style={{ fontSize: '0.7rem', letterSpacing: '0.2em', fontWeight: 900, marginLeft: 16 }}>VIP PATRONAGE</div>
+                </div>
+                {stats?.topCustomers?.length > 0 ? (
+                  <div className="analytics-list" style={{ gap: 14 }}>
+                    {stats.topCustomers.slice(0, 3).map((c, i) => (
+                      <div key={c._id} className="analytics-list__item" style={{ background: 'rgba(255,255,255,0.02)', padding: '16px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.03)' }}>
+                        <div className="analytics-list__avatar" style={{ width: 40, height: 40, fontSize: '0.9rem', fontWeight: 800, background: 'var(--accent-soft)', border: '1px solid var(--accent-border)', borderRadius: 12 }}>
+                          {c.fullName?.charAt(0) || 'C'}
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="analytics-empty analytics-empty--success">
-                      <CheckCircle2 size={20} style={{ color: 'var(--emerald)', marginBottom: 8 }} />
-                      Inventory levels are healthy.
-                    </div>
-                  )}
-                </div>
-              </Reveal>
-
-              {/* Returns Breakdown */}
-              <Reveal delay={0.5} direction="up">
-                <div className="card glass analytics-card">
-                  <div className="analytics-card__header">
-                    <div className="analytics-card__icon" style={{ background: 'linear-gradient(135deg, var(--secondary) 0%, var(--secondary-deep) 100%)' }}>
-                      <RotateCcw size={18} />
-                    </div>
-                    <div className="section-label">Return Reasons</div>
+                        <div className="analytics-list__info" style={{ marginLeft: 16 }}>
+                          <div className="analytics-list__name" style={{ fontSize: '1rem', fontWeight: 800 }}>{c.fullName}</div>
+                          <div className="analytics-list__meta" style={{ fontSize: '0.8rem', opacity: 0.4 }}>{c.segment || 'Platinum Tier'} • {c.totalOrders} Orders</div>
+                        </div>
+                        <div className="analytics-list__value" style={{ color: 'var(--emerald)', fontWeight: 900, fontSize: '1.1rem' }}>
+                          {formatCurrency(c.totalSpent)}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  {stats?.returns?.byReason?.length > 0 ? (
-                    <div className="analytics-chart">
-                      <ResponsiveContainer width="100%" height={200}>
-                        <PieChart>
-                          <Pie
-                            data={stats.returns.byReason}
-                            dataKey="count"
-                            nameKey="_id"
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={50}
-                            outerRadius={80}
-                            paddingAngle={3}
-                            stroke="none"
-                          >
-                            {stats.returns.byReason.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <Tooltip 
-                            contentStyle={{ 
-                              background: 'var(--bg-layer1)', 
-                              border: '1px solid var(--border-glass)', 
-                              borderRadius: 8 
-                            }} 
-                          />
-                          <Legend 
-                            verticalAlign="bottom" 
-                            height={36} 
-                            wrapperStyle={{ fontSize: '0.8rem', opacity: 0.8 }} 
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                  ) : (
-                    <div className="analytics-empty">No return data available.</div>
-                  )}
-                </div>
-              </Reveal>
-              
-            </div>
-          </>
+                ) : (
+                  <div className="analytics-empty">Analyzing client retention...</div>
+                )}
+              </div>
+            </StaggerItem>
+
+          </StaggerContainer>
         )}
       </div>
     </div>

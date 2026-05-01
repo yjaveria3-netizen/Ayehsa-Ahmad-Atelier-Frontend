@@ -15,7 +15,8 @@ import {
   ChevronRight,
   Cloud,
   Sun,
-  Moon
+  Moon,
+  Sparkles
 } from 'lucide-react';
 import { fadeUp, staggerContainer, staggerItem } from '../utils/motion';
 
@@ -147,45 +148,32 @@ export default function Layout() {
           borderBottom: '1px solid var(--border-faint)',
           flexShrink: 0,
         }}>
-          <motion.div 
-            style={{ display: 'flex', alignItems: 'center', gap: '14px' }}
-            layout
-          >
-            {/* Logo */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: sidebarCollapsed ? 'column' : 'row',
+            alignItems: 'center', 
+            justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+            gap: sidebarCollapsed ? '16px' : '14px' 
+          }}>
+            {/* Logo Icon */}
+            <div
+              className="landing-nav__logo-icon"
               style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #06b6d4 0%, #a855f7 100%)',
+                width: '40px',
+                height: '40px',
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 8px 24px rgba(6, 182, 212, 0.35)',
+                color: 'white',
+                boxShadow: 'var(--sha-accent)',
                 flexShrink: 0,
                 position: 'relative',
-                overflow: 'hidden',
               }}
             >
-              <div style={{
-                position: 'absolute',
-                inset: '2px',
-                background: 'var(--bg-base)',
-                borderRadius: '10px',
-              }} />
-              <span style={{
-                position: 'relative',
-                fontFamily: 'var(--font-display)',
-                fontWeight: 700,
-                fontSize: '1.4rem',
-                background: 'linear-gradient(135deg, #06b6d4 0%, #a855f7 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}>
-                L
-              </span>
-            </motion.div>
+              <Sparkles size={20} />
+            </div>
 
             {/* Brand Text */}
             <AnimatePresence>
@@ -200,7 +188,7 @@ export default function Layout() {
                   <div style={{
                     fontFamily: 'var(--font-display)',
                     fontSize: '1.4rem',
-                    fontWeight: 600,
+                    fontWeight: 800,
                     color: 'var(--text-primary)',
                     letterSpacing: '-0.01em',
                   }}>
@@ -211,7 +199,7 @@ export default function Layout() {
                     color: 'var(--accent)',
                     letterSpacing: '0.2em',
                     textTransform: 'uppercase',
-                    fontWeight: 600,
+                    fontWeight: 700,
                     marginTop: '2px',
                   }}>
                     Brand OS
@@ -221,13 +209,11 @@ export default function Layout() {
             </AnimatePresence>
 
             {/* Theme Toggle Button */}
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={toggleTheme}
               style={{
-                width: sidebarCollapsed ? '40px' : '36px',
-                height: sidebarCollapsed ? '40px' : '36px',
+                width: '36px',
+                height: '36px',
                 borderRadius: '10px',
                 display: 'flex',
                 alignItems: 'center',
@@ -245,16 +231,16 @@ export default function Layout() {
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={theme}
-                  initial={{ rotate: -90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: 90, opacity: 0 }}
+                  initial={{ opacity: 0, rotate: -90 }}
+                  animate={{ opacity: 1, rotate: 0 }}
+                  exit={{ opacity: 0, rotate: 90 }}
                   transition={{ duration: 0.2 }}
                 >
                   {isDark ? <Sun size={18} /> : <Moon size={18} />}
                 </motion.div>
               </AnimatePresence>
-            </motion.button>
-          </motion.div>
+            </button>
+          </div>
         </div>
 
         {/* Navigation */}
@@ -300,7 +286,7 @@ export default function Layout() {
                         fontSize: '0.9rem',
                         fontWeight: isActive ? 600 : 500,
                         color: isActive ? 'var(--accent)' : 'var(--text-muted)',
-                        background: isActive ? 'rgba(6, 182, 212, 0.12)' : 'transparent',
+                        background: isActive ? 'var(--accent-soft)' : 'transparent',
                         marginBottom: '4px',
                         transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
                         position: 'relative',
@@ -313,25 +299,22 @@ export default function Layout() {
                       {({ isActive }) => (
                         <>
                           {/* Active indicator */}
-                          <motion.div
-                            initial={false}
-                            animate={{
-                              height: isActive ? '60%' : '0%',
-                              opacity: isActive ? 1 : 0,
-                            }}
+                          <div
                             style={{
                               position: 'absolute',
                               left: 0,
                               top: '50%',
                               transform: 'translateY(-50%)',
+                              height: isActive ? '60%' : '0%',
                               width: '3px',
                               background: 'var(--accent)',
                               borderRadius: '0 4px 4px 0',
+                              opacity: isActive ? 1 : 0,
+                              transition: 'height 0.3s ease, opacity 0.3s ease',
                             }}
                           />
                           
-                          <motion.span 
-                            whileHover={{ scale: 1.1 }}
+                          <span 
                             style={{ 
                               display: 'flex',
                               width: '20px',
@@ -341,7 +324,7 @@ export default function Layout() {
                             }}
                           >
                             {item.icon}
-                          </motion.span>
+                          </span>
                           
                           {!sidebarCollapsed && (
                             <span>{item.label}</span>
@@ -368,8 +351,9 @@ export default function Layout() {
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
-            padding: '12px',
+            justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+            gap: sidebarCollapsed ? 0 : '12px',
+            padding: sidebarCollapsed ? '8px' : '12px',
             borderRadius: '10px',
             background: 'var(--bg-layer1)',
             border: '1px solid var(--border-faint)',
@@ -423,9 +407,7 @@ export default function Layout() {
                   </div>
                 </div>
                 
-                <motion.button
-                  whileHover={{ scale: 1.1, background: 'rgba(239, 68, 68, 0.12)' }}
-                  whileTap={{ scale: 0.95 }}
+                <button
                   onClick={handleLogout}
                   style={{
                     width: '36px',
@@ -438,21 +420,19 @@ export default function Layout() {
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    transition: 'color 0.2s',
+                    transition: 'all 0.2s',
                   }}
                   title="Sign out"
                 >
                   <LogOut size={18} />
-                </motion.button>
+                </button>
               </>
             )}
           </div>
 
           {/* Collapse Toggle (Desktop only) */}
           {!isMobile && (
-            <motion.button
-              whileHover={{ background: 'var(--accent-soft)' }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               style={{
                 width: '100%',
@@ -468,6 +448,7 @@ export default function Layout() {
                 border: '1px solid var(--border-faint)',
                 cursor: 'pointer',
                 fontSize: '0.8rem',
+                transition: 'background 0.2s',
               }}
             >
               {sidebarCollapsed ? (
@@ -478,7 +459,7 @@ export default function Layout() {
                   <span>Collapse</span>
                 </>
               )}
-            </motion.button>
+            </button>
           )}
         </div>
       </motion.nav>
@@ -511,9 +492,7 @@ export default function Layout() {
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-            <motion.button
-              whileHover={{ background: 'var(--accent-soft)' }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => setSidebarOpen(true)}
               style={{
                 width: '40px',
@@ -526,26 +505,45 @@ export default function Layout() {
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
+                transition: 'background 0.2s',
               }}
               aria-label="Open menu"
             >
               <Menu size={22} />
-            </motion.button>
+            </button>
 
             <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
               fontFamily: 'var(--font-display)',
               fontSize: '1.2rem',
-              fontWeight: 600,
+              fontWeight: 800,
               color: 'var(--text-primary)',
             }}>
+              <div
+                className="landing-nav__logo-icon"
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  background: 'linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  boxShadow: 'var(--sha-accent)',
+                  flexShrink: 0,
+                }}
+              >
+                <Sparkles size={16} />
+              </div>
               LibasTrack
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {/* Mobile Theme Toggle */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              <button
                 onClick={toggleTheme}
                 style={{
                   width: '36px',
@@ -558,15 +556,14 @@ export default function Layout() {
                   border: `1px solid ${isDark ? 'var(--accent-border)' : 'rgba(217, 119, 6, 0.25)'}`,
                   color: isDark ? 'var(--accent)' : 'var(--gold)',
                   cursor: 'pointer',
+                  transition: 'all 0.3s ease',
                 }}
                 aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               >
                 {isDark ? <Sun size={16} /> : <Moon size={16} />}
-              </motion.button>
+              </button>
 
-              <motion.button
-                whileHover={{ background: 'var(--accent-soft)' }}
-                whileTap={{ scale: 0.95 }}
+              <button
                 style={{
                   width: '36px',
                   height: '36px',
@@ -578,10 +575,11 @@ export default function Layout() {
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
+                  transition: 'background 0.2s',
                 }}
               >
                 <Bell size={18} />
-              </motion.button>
+              </button>
             </div>
           </header>
         )}

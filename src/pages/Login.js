@@ -100,8 +100,10 @@ export default function Login() {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         aria-hidden="true"
       >
-        {/* Decorative Background Letter */}
-        <div className="auth-panel__bg-letter">L</div>
+        {/* Decorative Background Icon */}
+        <div className="auth-panel__bg-letter" style={{ fontSize: '20vw', opacity: 0.05 }}>
+          <Sparkles size={200} />
+        </div>
 
         <div className="auth-panel__content">
           {/* Back Button */}

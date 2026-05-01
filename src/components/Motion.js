@@ -166,33 +166,11 @@ export function SplitText({ text, className, style, delay = 0, stagger = 0.06, t
 /* ─────────────────────────────────────────
    MAGNETIC BUTTON
 ───────────────────────────────────────── */
-export function MagneticButton({ children, strength = 0.35, className, style, onClick, disabled, type }) {
-  const ref = useRef(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 200, damping: 18 });
-  const sy = useSpring(y, { stiffness: 200, damping: 18 });
-
-  const handleMouseMove = (e) => {
-    const rect = ref.current.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    x.set((e.clientX - cx) * strength);
-    y.set((e.clientY - cy) * strength);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0); y.set(0);
-  };
-
+export function MagneticButton({ children, className, style, onClick, disabled, type }) {
   return (
     <motion.button
-      ref={ref}
-      style={{ x: sx, y: sy, ...style }}
+      style={{ ...style }}
       className={className}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      whileTap={{ scale: 0.96 }}
       onClick={onClick}
       disabled={disabled}
       type={type}
@@ -407,7 +385,6 @@ export function GlowCard({ children, className, style, onClick }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
-      whileHover={{ y: -3, transition: ease.springGentle }}
     >
       <motion.div
         style={{

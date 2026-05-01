@@ -156,7 +156,7 @@ function TaskCard({ item, onToggle, onEdit, onDelete }) {
 }
 
 /* ─── Phase Section ──────────────────────────────────────────── */
-function PhaseSection({ group, idx, onToggle, onEdit, onDelete, onAddTask }) {
+function PhaseSection({ group, idx, onToggle, onEdit, onDelete, onAddTask, onDeletePhase }) {
   const [expanded, setExpanded] = useState(true);
   const pct = group.total > 0 ? Math.round((group.completed / group.total) * 100) : 0;
   const allDone = group.completed === group.total && group.total > 0;
@@ -223,20 +223,37 @@ function PhaseSection({ group, idx, onToggle, onEdit, onDelete, onAddTask }) {
           </span>
         </div>
 
-        {/* Add task button */}
-        <motion.button
-          whileHover={{ scale: 1.05, color: 'var(--accent)' }}
-          whileTap={{ scale: 0.95 }}
-          onClick={(e) => { e.stopPropagation(); onAddTask(group.phase); }}
-          style={{
-            fontSize: '0.7rem', fontWeight: 700, padding: '4px 12px', borderRadius: 7,
-            border: '1px solid var(--accent-border)', color: 'var(--accent)',
-            background: 'var(--accent-soft)', cursor: 'pointer', flexShrink: 0,
-            letterSpacing: '0.05em', transition: 'all 0.15s',
-          }}
-        >
-          + Task
-        </motion.button>
+        {/* Actions */}
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }} onClick={e => e.stopPropagation()}>
+          <motion.button
+            whileHover={{ scale: 1.05, color: 'var(--accent)' }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onAddTask(group.phase)}
+            style={{
+              fontSize: '0.7rem', fontWeight: 700, padding: '4px 12px', borderRadius: 7,
+              border: '1px solid var(--accent-border)', color: 'var(--accent)',
+              background: 'var(--accent-soft)', cursor: 'pointer', flexShrink: 0,
+              letterSpacing: '0.05em', transition: 'all 0.15s',
+            }}
+          >
+            + Task
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.1, color: '#F87171' }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => onDeletePhase(group.phase)}
+            style={{
+              width: 28, height: 28, borderRadius: 7,
+              border: '1px solid rgba(248,113,113,0.2)', color: '#F87171',
+              background: 'rgba(248,113,113,0.05)', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '0.85rem',
+            }}
+            title="Delete Phase"
+          >
+            🗑️
+          </motion.button>
+        </div>
       </div>
 
       {/* Task list */}
@@ -362,10 +379,10 @@ function TaskModal({ show, onClose, onSave, form, setForm, saving, isEdit }) {
                 <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
                 <button
                   type="submit"
-                  className="btn btn-primary"
+                  className={`btn btn-primary ${saving ? 'btn-loading' : ''}`}
                   disabled={saving}
                 >
-                  {saving ? 'Saving…' : isEdit ? 'Update Task' : 'Add Task'}
+                  <span>{saving ? 'Saving…' : isEdit ? 'Update Task' : 'Add Task'}</span>
                 </button>
               </div>
             </form>
@@ -481,13 +498,32 @@ export default function Checklist() {
     }
   };
 
+  const handleDeletePhase = async (phaseName) => {
+    if (!window.confirm(`Are you sure? This will delete the entire phase "${phaseName}" and all its tasks.`)) return;
+    try {
+      await api.delete(`/checklist/phase/${encodeURIComponent(phaseName)}`);
+      toast.success('Phase deleted');
+      fetchChecklist();
+    } catch (err) {
+      console.error('Delete phase error:', err.message);
+      toast.error(err.response?.data?.message || 'Failed to delete phase');
+    }
+  };
+
+  const handleAddNewPhase = () => {
+    const name = window.prompt('Enter name for the new phase (e.g. PHASE 11 · Social Media Blowup)');
+    if (name && name.trim()) {
+      handleOpenAdd(name.trim());
+    }
+  };
+
   const overallProgress = data && data.total > 0
     ? Math.round((data.totalCompleted / data.total) * 100)
     : 0;
 
   return (
     <div className="checklist-page animate-vibe">
-      {/* Page Header */}
+      {/* ── Page Header ── */}
       <div className="page-header">
         <div className="page-header-inner">
           <Reveal delay={0.05} direction="none">
@@ -496,14 +532,23 @@ export default function Checklist() {
               <p className="page-subtitle">Track every phase of your brand launch journey</p>
             </div>
           </Reveal>
-          <div className="header-actions">
+          <div className="header-actions" style={{ display: 'flex', gap: 12 }}>
             <Reveal delay={0.1} direction="none">
+              <button
+                className="btn btn-primary"
+                onClick={handleAddNewPhase}
+                style={{ background: 'var(--accent)', color: 'white' }}
+              >
+                + New Phase
+              </button>
+            </Reveal>
+            <Reveal delay={0.15} direction="none">
               <button
                 className="btn btn-secondary glass"
                 onClick={() => window.confirm('Reset checklist to defaults?') && initChecklist()}
                 disabled={initializing}
               >
-                {initializing ? '⟳ Resetting…' : '↺ Reset'}
+                {initializing ? '⟳ Resetting…' : '↺ Reset Journey'}
               </button>
             </Reveal>
           </div>
@@ -512,8 +557,9 @@ export default function Checklist() {
 
       <div className="page-body">
         {loading ? (
-          <div className="page-loader"><div className="spinner" /></div>
-
+          <div className="page-loader" style={{ height: '40vh' }}>
+            <div className="spinner" />
+          </div>
         ) : !data || data.total === 0 ? (
           <motion.div
             className="empty-state"
@@ -521,8 +567,8 @@ export default function Checklist() {
             animate={{ opacity: 1, y: 0 }}
           >
             <div style={{ fontSize: '3rem', marginBottom: 16 }}>📋</div>
-            <h3 style={{ fontFamily: 'var(--font-display)', marginBottom: 10 }}>No checklist yet</h3>
-            <p style={{ color: 'var(--text-faint)', marginBottom: 28, maxWidth: 320 }}>
+            <h3 style={{ marginBottom: 10 }}>No checklist yet</h3>
+            <p style={{ color: 'var(--text-faint)', marginBottom: 28, maxWidth: 400 }}>
               Initialize with 10 pre-built phases covering your entire launch journey — from brand foundation to post-launch growth.
             </p>
             <button
@@ -531,41 +577,39 @@ export default function Checklist() {
               onClick={initChecklist}
               disabled={initializing}
             >
-              {initializing ? 'Initializing…' : 'Initialize Checklist →'}
+              {initializing ? 'Initializing…' : 'Begin Your Journey →'}
             </button>
           </motion.div>
-
         ) : (
           <>
-            {/* Progress Overview */}
+            {/* ── Progress Overview ── */}
             <motion.div
-              className="card glass checklist-overview"
+              className="card glass"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              style={{ marginBottom: 32, border: '1px solid var(--accent-border)' }}
+              style={{ marginBottom: 40, border: '1px solid var(--accent-border)', padding: '32px' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
-                {/* Left: title + progress bar */}
-                <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 32, flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: 280 }}>
                   <div style={{
-                    fontSize: '0.6rem', fontWeight: 800, color: 'var(--accent)',
-                    letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 6,
+                    fontSize: '0.65rem', fontWeight: 800, color: 'var(--accent)',
+                    letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 8,
                   }}>
-                    Launch Progress
+                    Launch Readiness
                   </div>
-                  <div style={{
-                    fontFamily: 'var(--font-display)', fontSize: 'clamp(1.4rem, 3vw, 2rem)',
-                    fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12, lineHeight: 1.2,
+                  <h2 style={{
+                    fontFamily: 'var(--font-display)', fontSize: 'clamp(1.6rem, 4vw, 2.4rem)',
+                    fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16, lineHeight: 1.2,
                   }}>
-                    {data.totalCompleted} of {data.total} tasks complete
-                  </div>
-                  <div style={{ height: 8, background: 'rgba(255,255,255,0.05)', borderRadius: 99, overflow: 'hidden' }}>
+                    {data.totalCompleted} of {data.total} tasks secured
+                  </h2>
+                  <div style={{ height: 10, background: 'rgba(255,255,255,0.05)', borderRadius: 99, overflow: 'hidden' }}>
                     <motion.div
                       style={{
                         height: '100%', borderRadius: 99,
                         background: overallProgress === 100
                           ? 'linear-gradient(90deg, #34D399, #10b981)'
-                          : 'linear-gradient(90deg, var(--accent), var(--accent-deep))',
+                          : 'linear-gradient(90deg, var(--accent), var(--secondary))',
                       }}
                       initial={{ width: 0 }}
                       animate={{ width: `${overallProgress}%` }}
@@ -574,26 +618,22 @@ export default function Checklist() {
                   </div>
                 </div>
 
-                {/* Right: big percent */}
                 <div style={{ textAlign: 'center', flexShrink: 0 }}>
                   <div style={{
-                    fontFamily: 'var(--font-display)', fontSize: 'clamp(2.8rem, 6vw, 4rem)',
+                    fontFamily: 'var(--font-display)', fontSize: 'clamp(3rem, 8vw, 4.5rem)',
                     fontWeight: 800, lineHeight: 1,
                     color: overallProgress === 100 ? '#34D399' : 'var(--accent)',
-                    textShadow: overallProgress === 100
-                      ? '0 0 30px rgba(52,211,153,0.5)'
-                      : '0 0 30px var(--accent-glow)',
                   }}>
                     {overallProgress}%
                   </div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-faint)', marginTop: 4, fontWeight: 600 }}>
-                    {overallProgress === 100 ? '🎉 Launch Ready!' : 'momentum'}
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 6, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                    {overallProgress === 100 ? '🎉 Mission Complete' : 'Momentum'}
                   </div>
                 </div>
               </div>
 
-              {/* Phase mini-chips */}
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border-faint)' }}>
+              {/* Phase progress chips */}
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--border-faint)' }}>
                 {data.grouped.map((group, i) => {
                   const pct = group.total > 0 ? Math.round((group.completed / group.total) * 100) : 0;
                   const done = pct === 100;
@@ -601,13 +641,12 @@ export default function Checklist() {
                   return (
                     <div
                       key={group.phase}
+                      className="id-chip"
                       style={{
-                        padding: '4px 12px', borderRadius: 99, fontSize: '0.65rem', fontWeight: 700,
-                        background: done ? 'rgba(52,211,153,0.10)' : 'var(--accent-soft)',
+                        background: done ? 'rgba(52,211,153,0.08)' : 'var(--accent-soft)',
                         color: done ? '#34D399' : 'var(--accent)',
-                        border: `1px solid ${done ? 'rgba(52,211,153,0.22)' : 'var(--accent-border)'}`,
-                        display: 'flex', alignItems: 'center', gap: 5,
-                        whiteSpace: 'nowrap',
+                        borderColor: done ? 'rgba(52,211,153,0.2)' : 'var(--accent-border)',
+                        padding: '6px 14px', fontSize: '0.7rem',
                       }}
                       title={group.phase}
                     >
@@ -618,8 +657,8 @@ export default function Checklist() {
               </div>
             </motion.div>
 
-            {/* Phase sections */}
-            <div>
+            {/* ── Phase Sections ── */}
+            <div style={{ display: 'grid', gap: 24 }}>
               {data.grouped.map((group, idx) => (
                 <PhaseSection
                   key={group.phase}
@@ -629,6 +668,7 @@ export default function Checklist() {
                   onEdit={handleOpenEdit}
                   onDelete={handleDeleteTask}
                   onAddTask={handleOpenAdd}
+                  onDeletePhase={handleDeletePhase}
                 />
               ))}
             </div>
@@ -636,6 +676,7 @@ export default function Checklist() {
         )}
       </div>
 
+      {/* ── Task Modal ── */}
       <TaskModal
         show={showModal}
         onClose={() => setShowModal(false)}

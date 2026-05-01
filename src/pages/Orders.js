@@ -172,11 +172,11 @@ export default function Orders() {
         <div className="page-header-inner">
           <Reveal delay={0.05} direction="none">
             <div>
-              <h1 className="page-title">Order pipeline</h1>
+              <h1 className="page-title">Order Pipeline</h1>
               <p className="page-subtitle">
                 {total} entries in fulfillment pipeline
                 {user?.storageType === 'google_drive' && user?.driveConnected && (
-                  <span style={{ marginLeft: 14, color: 'var(--accent)', fontSize: '0.75rem' }}>
+                  <span style={{ marginLeft: 14, color: 'var(--accent)', fontSize: '0.75rem', fontWeight: 700 }}>
                     ● Vault Secured
                   </span>
                 )}
@@ -184,18 +184,18 @@ export default function Orders() {
             </div>
           </Reveal>
           <Reveal delay={0.15} direction="left">
-            <MagneticButton className="btn btn-primary" onClick={openAdd}>
+            <button className="btn btn-primary" onClick={openAdd}>
               + New Order
-            </MagneticButton>
+            </button>
           </Reveal>
         </div>
       </div>
 
       <div className="page-body">
 
-        {/* ── Stats row ── */}
+        {/* ── Stats Row ── */}
         {loading && !stats ? (
-          <StatsLoadingGrid />
+          <StatsLoadingGrid count={4} />
         ) : stats && (
           <StaggerContainer staggerDelay={0.06} delayStart={0.1}>
             <div className="stats-grid" style={{ marginBottom: 28 }}>
@@ -218,8 +218,8 @@ export default function Orders() {
           </StaggerContainer>
         )}
 
-        {/* ── Status filters ── */}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+        {/* ── Quick Status Pills ── */}
+        <div className="status-pills-bar" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 24 }}>
           {['', 'Pending', 'Processing', 'Stitching', 'Ready', 'Shipped', 'Delivered', 'Cancelled'].map(s => {
             const active = statusFilter === s;
             const st = s ? STATUS_STYLE[s] : null;
@@ -228,17 +228,17 @@ export default function Orders() {
                 key={s || 'all'}
                 onClick={() => { setStatusFilter(s); setPage(1); }}
                 style={{
-                  padding: '5px 14px',
+                  padding: '6px 16px',
                   borderRadius: 99,
-                  fontSize: '0.7rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.06em',
+                  fontSize: '0.65rem',
+                  fontWeight: 800,
+                  letterSpacing: '0.08em',
                   textTransform: 'uppercase',
                   border: `1px solid ${active && st ? st.border : active ? 'var(--accent-border)' : 'var(--border-faint)'}`,
                   background: active && st ? st.bg : active ? 'var(--accent-soft)' : 'transparent',
                   color: active && st ? st.color : active ? 'var(--accent)' : 'var(--text-faint)',
                   cursor: 'pointer',
-                  transition: 'all 0.15s ease',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               >
                 {s || 'All States'}
@@ -247,10 +247,10 @@ export default function Orders() {
           })}
         </div>
 
-        {/* ── Search & Canal selection ── */}
-        <div className="table-toolbar" style={{ marginTop: 0, marginBottom: 24, display: 'flex', gap: 16 }}>
+        {/* ── Toolbar ── */}
+        <div className="commerce-toolbar" style={{ marginBottom: 24, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
           <div className="search-input-wrapper" style={{ maxWidth: 380, flex: 1 }}>
-            <span className="search-icon" style={{ color: 'var(--text-faint)' }}>🔍</span>
+            <span className="search-icon">🔍</span>
             <input
               className="form-input search-input"
               placeholder="Search reference, customer…"
@@ -259,8 +259,8 @@ export default function Orders() {
             />
           </div>
           <select
-            className="form-select status-filter"
-            style={{ maxWidth: 180 }}
+            className="form-select"
+            style={{ width: 180, padding: '10px 18px', fontSize: '0.85rem' }}
             value={channelFilter}
             onChange={e => { setChannelFilter(e.target.value); setPage(1); }}
           >
@@ -306,25 +306,24 @@ export default function Orders() {
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.03, duration: 0.35 }}
-                        className="hover-lift"
                       >
                         <td>
                           <span className="id-chip">{o.orderId}</span>
                         </td>
                         <td>
-                          <div className="cell-primary">{o.customerName || o.customerId}</div>
+                          <div className="cell-primary" style={{ marginBottom: 2 }}>{o.customerName || o.customerId}</div>
                           {o.customerPhone && (
-                            <div style={{ fontSize: '0.72rem', color: 'var(--text-faint)', marginTop: 2 }}>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--text-faint)' }}>
                               {o.customerPhone}
                             </div>
                           )}
                         </td>
                         <td>
-                          <div className="cell-primary" style={{ fontWeight: 700 }}>
+                          <div className="cell-primary" style={{ fontWeight: 800 }}>
                             {formatCurrency(o.total)}
                           </div>
                           {o.discountAmount > 0 && (
-                            <div style={{ fontSize: '0.72rem', color: '#34D399', marginTop: 2 }}>
+                            <div style={{ fontSize: '0.7rem', color: '#34D399', marginTop: 2 }}>
                               -{formatCurrency(o.discountAmount)}
                             </div>
                           )}
@@ -335,8 +334,8 @@ export default function Orders() {
                         <td>
                           <span style={{
                             display: 'inline-flex', alignItems: 'center',
-                            padding: '3px 10px', borderRadius: 99,
-                            fontSize: '0.62rem', fontWeight: 800,
+                            padding: '4px 12px', borderRadius: 99,
+                            fontSize: '0.6rem', fontWeight: 800,
                             textTransform: 'uppercase', letterSpacing: '0.08em',
                             color: st.color, background: st.bg,
                             border: `1px solid ${st.border}`,
@@ -346,12 +345,12 @@ export default function Orders() {
                         </td>
                         <td>
                           {o.priority !== 'Normal' ? (
-                            <span className={`priority-flag ${o.priority.toLowerCase()}`} style={{
+                            <span style={{
                               fontSize: '0.62rem', fontWeight: 800, textTransform: 'uppercase',
-                              padding: '2px 8px', borderRadius: 4,
-                              background: o.priority === 'Urgent' ? 'rgba(248,113,113,0.1)' : 'rgba(251,191,36,0.1)',
-                              color: o.priority === 'Urgent' ? '#F87171' : '#FBBF24',
-                              border: `1px solid ${o.priority === 'Urgent' ? 'rgba(248,113,113,0.2)' : 'rgba(251,191,36,0.2)'}`,
+                              padding: '2px 8px', borderRadius: 6,
+                              background: o.priority === 'Urgent' ? 'rgba(201,122,109,0.1)' : 'rgba(251,191,36,0.1)',
+                              color: o.priority === 'Urgent' ? '#C97A6D' : '#FBBF24',
+                              border: `1px solid ${o.priority === 'Urgent' ? 'rgba(201,122,109,0.2)' : 'rgba(251,191,36,0.2)'}`,
                             }}>
                               {o.priority}
                             </span>
@@ -361,7 +360,7 @@ export default function Orders() {
                         </td>
                         <td>
                           {o.trackingNumber ? (
-                            <span style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.82rem' }}>
+                            <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '0.82rem', letterSpacing: '0.02em' }}>
                               #{o.trackingNumber}
                             </span>
                           ) : (
@@ -378,39 +377,36 @@ export default function Orders() {
                               whileTap={{ scale: 0.9 }}
                               onClick={() => handleDownloadInvoice(o)}
                               style={{
-                                width: 30, height: 30, borderRadius: 7,
+                                width: 32, height: 32, borderRadius: 8,
                                 border: '1px solid rgba(52,211,153,0.3)',
                                 background: 'rgba(52,211,153,0.1)', color: '#34D399',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                cursor: 'pointer', fontSize: '0.78rem',
+                                cursor: 'pointer', fontSize: '0.85rem',
                               }}
-                              title="Download Invoice"
                             >📄</motion.button>
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               onClick={() => openEdit(o)}
                               style={{
-                                width: 30, height: 30, borderRadius: 7,
+                                width: 32, height: 32, borderRadius: 8,
                                 border: '1px solid var(--accent-border)',
                                 background: 'var(--accent-soft)', color: 'var(--accent)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                cursor: 'pointer', fontSize: '0.78rem',
+                                cursor: 'pointer', fontSize: '0.85rem',
                               }}
-                              title="Edit Order"
                             >✏️</motion.button>
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               onClick={() => handleDelete(o._id)}
                               style={{
-                                width: 30, height: 30, borderRadius: 7,
-                                border: '1px solid rgba(248,113,113,0.25)',
-                                background: 'rgba(248,113,113,0.08)', color: '#F87171',
+                                width: 32, height: 32, borderRadius: 8,
+                                border: '1px solid rgba(201,122,109,0.2)',
+                                background: 'rgba(201,122,109,0.05)', color: '#C97A6D',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                cursor: 'pointer', fontSize: '0.78rem',
+                                cursor: 'pointer', fontSize: '0.85rem',
                               }}
-                              title="Delete Order"
                             >🗑️</motion.button>
                           </div>
                         </td>
@@ -457,7 +453,7 @@ export default function Orders() {
                 <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
               </div>
 
-              <div className="modal-body" style={{ maxHeight: '75vh', overflowY: 'auto', paddingRight: 10 }}>
+              <div className="modal-body" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
                 <form onSubmit={handleSave}>
 
                   {/* Customer Identity */}

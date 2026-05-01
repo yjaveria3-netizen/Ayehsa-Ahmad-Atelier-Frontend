@@ -83,157 +83,252 @@ export default function Collection() {
 
   return (
     <div className="collections-page animate-vibe">
+      {/* ── Page Header ── */}
       <div className="page-header">
         <div className="page-header-inner">
           <Reveal delay={0.05} direction="none">
             <div>
-              <h1 className="page-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 800 }}>Collections</h1>
-              <p className="page-subtitle" style={{ color: 'var(--text-muted)' }}>{total} premium seasonal & themed launches</p>
+              <h1 className="page-title">Collections</h1>
+              <p className="page-subtitle">{total} premium seasonal & themed launches</p>
             </div>
           </Reveal>
           <Reveal delay={0.15} direction="left">
-            <MagneticButton className="btn" onClick={openAdd} style={{ background: 'var(--accent)', color: 'white', fontWeight: 700 }}>+ New Collection</MagneticButton>
+            <button className="btn btn-primary" onClick={openAdd}>
+              + New Collection
+            </button>
           </Reveal>
         </div>
       </div>
 
       <div className="page-body">
-        {/* Filters */}
-        <div className="table-toolbar" style={{ marginBottom: 32 }}>
-          <div className="filter-group">
-            <div className="search-input-wrapper glass" style={{ border: '1px solid var(--accent-soft)' }}>
-              <span className="search-icon" style={{ color: 'var(--accent)' }}>⌕</span>
-              <input className="form-input search-input" style={{ background: 'transparent', border: 'none' }} placeholder="Search elite collections…" value={searchInput} onChange={e => setSearchInput(e.target.value)} />
-            </div>
-            <select className="form-select glass" style={{ border: '1px solid var(--accent-soft)' }} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-              <option value="">All statuses</option>
-              {STATUSES.map(s => <option key={s}>{s}</option>)}
-            </select>
+        {/* ── Toolbar ── */}
+        <div className="commerce-toolbar" style={{ marginBottom: 32, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+          <div className="search-input-wrapper" style={{ maxWidth: 380, flex: 1 }}>
+            <span className="search-icon">🔍</span>
+            <input
+              className="form-input search-input"
+              placeholder="Search elite collections…"
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
+            />
           </div>
+          <select
+            className="form-select"
+            style={{ width: 200, padding: '10px 18px', fontSize: '0.85rem' }}
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+          >
+            <option value="">All Statuses</option>
+            {STATUSES.map(s => <option key={s}>{s}</option>)}
+          </select>
         </div>
 
-        {/* Collection grid */}
+        {/* ── Collection Grid ── */}
         {loading ? (
-          <div className="page-loader"><div className="spinner" /></div>
+          <div className="page-loader" style={{ height: '40vh' }}>
+            <div className="spinner" />
+          </div>
         ) : loadError ? (
           <QueryErrorState message={loadError} onRetry={fetchData} />
         ) : collections.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state-icon" style={{ color: 'var(--accent)' }}>◫</div>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem' }}>No collections found</h3>
-            <p style={{ color: 'var(--text-muted)' }}>Curate your first seasonal or themed luxury collection</p>
-            <button className="btn" style={{ background: 'var(--accent)', color: 'white', marginTop: 24 }} onClick={openAdd}>+ Start Collection</button>
+            <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>◫</div>
+            <h3>No collections found</h3>
+            <p>Curate your first seasonal or themed luxury collection.</p>
+            <button className="btn btn-primary" style={{ marginTop: 24 }} onClick={openAdd}>
+              + Start Collection
+            </button>
           </div>
         ) : (
-          <div className="collections-grid">
-            {collections.map((c, idx) => {
-              const statusColors = {
-                Planning: 'var(--accent-soft)',
-                Production: 'rgba(251, 191, 36, 0.12)',
-                Ready: 'rgba(52, 211, 153, 0.12)',
-                Launched: 'var(--accent)',
-                Archived: 'rgba(255, 255, 255, 0.05)',
-              };
-              const statusText = {
-                Planning: 'var(--accent)',
-                Production: '#FBBF24',
-                Ready: '#34D399',
-                Launched: 'white',
-                Archived: 'var(--text-muted)',
-              };
-              
-              return (
-                <motion.div key={c._id} className="collection-card glass hover-glow"
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05, duration: 0.4 }}
-                  style={{ border: '1px solid var(--accent-soft)', padding: '24px' }}
-                >
-                  <div className="card-top" style={{ marginBottom: 20 }}>
-                    <div>
-                      <div className="id-badge" style={{ color: 'var(--accent)', fontSize: '0.65rem', fontWeight: 700 }}>{c.collectionId}</div>
-                      <h3 className="collection-name" style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', fontWeight: 800 }}>{c.name}</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 24 }}>
+            {collections.map((c, idx) => (
+              <motion.div
+                key={c._id}
+                className="card glass"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05, duration: 0.4 }}
+                style={{ display: 'flex', flexDirection: 'column' }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                  <div>
+                    <div className="id-chip" style={{ marginBottom: 8, background: 'var(--accent-soft)', color: 'var(--accent)' }}>
+                      {c.collectionId}
                     </div>
-                    <span className="badge" style={{ background: statusColors[c.status], color: statusText[c.status], fontSize: '0.65rem', padding: '4px 10px', borderRadius: '4px' }}>{c.status}</span>
+                    <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{c.name}</h3>
                   </div>
+                  <span className={`badge badge-${c.status.toLowerCase()}`} style={{ fontSize: '0.6rem' }}>
+                    {c.status}
+                  </span>
+                </div>
 
-                  {c.description && <p className="collection-desc" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 20, flex: 1 }}>{c.description}</p>}
+                {c.description && (
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 20, flex: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {c.description}
+                  </p>
+                )}
 
-                  <div className="badge-group" style={{ gap: 8, marginBottom: 24 }}>
-                    {c.season && <span className="badge glass" style={{ border: '1px solid var(--accent-soft)', color: 'var(--accent)' }}>{c.season}</span>}
-                    {c.theme && <span className="badge glass" style={{ borderColor: 'rgba(255,255,255,0.05)', color: 'var(--text-faint)' }}>{c.theme}</span>}
+                <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
+                  {c.season && (
+                    <span className="id-chip" style={{ background: 'var(--bg-layer2)', color: 'var(--text-muted)' }}>
+                      {c.season}
+                    </span>
+                  )}
+                  {c.theme && (
+                    <span className="id-chip" style={{ background: 'rgba(255,255,255,0.03)', color: 'var(--text-faint)' }}>
+                      {c.theme}
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.03)' }}>
+                  <div style={{ fontSize: '0.75rem', opacity: 0.5, display: 'flex', gap: 12 }}>
+                    {c.productCount > 0 && <span>{c.productCount} Pieces</span>}
+                    {c.launchDate && <span>🗓 {new Date(c.launchDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</span>}
                   </div>
-
-                  <div className="card-footer" style={{ borderTop: '1px solid rgba(255,255,255,0.03)', paddingTop: 16 }}>
-                    <div className="footer-meta" style={{ opacity: 0.5, fontSize: '0.75rem' }}>
-                      {c.productCount > 0 && <span>{c.productCount} Pieces</span>}
-                      {c.launchDate && <span>🗓 {new Date(c.launchDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</span>}
-                    </div>
-                    <div className="footer-actions" style={{ gap: 8 }}>
-                      <button className="btn-icon-sm" onClick={() => openEdit(c)} style={{ color: 'var(--accent)' }}>✎</button>
-                      <button className="btn-icon-sm" onClick={() => handleDelete(c._id)} style={{ color: '#F87171' }}>✕</button>
-                    </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => openEdit(c)}
+                      style={{
+                        width: 32, height: 32, borderRadius: 8,
+                        border: '1px solid var(--accent-border)',
+                        background: 'var(--accent-soft)', color: 'var(--accent)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', fontSize: '0.85rem',
+                      }}
+                    >✏️</motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => handleDelete(c._id)}
+                      style={{
+                        width: 32, height: 32, borderRadius: 8,
+                        border: '1px solid rgba(248,113,113,0.2)',
+                        background: 'rgba(248,113,113,0.05)', color: '#F87171',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', fontSize: '0.85rem',
+                      }}
+                    >🗑️</motion.button>
                   </div>
-                </motion.div>
-              );
-            })}
+                </div>
+              </motion.div>
+            ))}
           </div>
         )}
       </div>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal glass animate-vibe" style={{ border: '1px solid var(--accent-border)' }} onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 800 }}>{editing ? 'Edit Collection' : 'New Collection'}</h2>
-              <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
-            </div>
-            <div className="modal-body">
-              <form onSubmit={handleSave}>
-                <div className="form-group">
-                  <label className="form-label">Collection Name *</label>
-                  <input className="form-input glass" style={{ border: '1px solid var(--accent-soft)' }} value={form.name} onChange={e => set('name', e.target.value)} required placeholder="Festive Luxe 2025" />
-                </div>
-                <div className="form-grid-2">
-                  <div className="form-group">
-                    <label className="form-label">Season</label>
-                    <select className="form-select glass" style={{ border: '1px solid var(--accent-soft)' }} value={form.season} onChange={e => set('season', e.target.value)}>
-                      {SEASONS.map(s => <option key={s}>{s}</option>)}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Year</label>
-                    <input className="form-input glass" style={{ border: '1px solid var(--accent-soft)' }} type="number" value={form.year} onChange={e => set('year', e.target.value)} min="2020" max="2030" />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Status</label>
-                    <select className="form-select glass" style={{ border: '1px solid var(--accent-soft)' }} value={form.status} onChange={e => set('status', e.target.value)}>
-                      {STATUSES.map(s => <option key={s}>{s}</option>)}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Launch Date</label>
-                    <input className="form-input glass" style={{ border: '1px solid var(--accent-soft)' }} type="date" value={form.launchDate} onChange={e => set('launchDate', e.target.value)} />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Theme</label>
-                  <input className="form-input glass" style={{ border: '1px solid var(--accent-soft)' }} value={form.theme} onChange={e => set('theme', e.target.value)} placeholder="Midnight Garden…" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Description</label>
-                  <textarea className="form-textarea glass" style={{ border: '1px solid var(--accent-soft)' }} rows={3} value={form.description} onChange={e => set('description', e.target.value)} placeholder="Describe this collection…" />
-                </div>
-                <div className="form-actions" style={{ marginTop: 24 }}>
-                  <button type="button" className="btn btn-secondary glass" onClick={() => setShowModal(false)}>Cancel</button>
-                  <button type="submit" className="btn" style={{ background: 'var(--accent)', color: 'white', fontWeight: 700 }} disabled={saving}>{saving ? 'Saving...' : editing ? 'Update Collection' : 'Create Collection'}</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      {/* ── Add / Edit Modal ── */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={e => e.target === e.currentTarget && setShowModal(false)}
+          >
+            <motion.div
+              className="modal glass"
+              initial={{ scale: 0.92, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+              style={{ border: '1px solid var(--accent-border)', maxWidth: 520 }}
+            >
+              <div className="modal-header">
+                <h2 className="modal-title">
+                  {editing ? '✏️ Refine Collection' : '+ Curate Collection'}
+                </h2>
+                <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
+              </div>
 
+              <div className="modal-body">
+                <form onSubmit={handleSave}>
+                  <div className="form-group">
+                    <label className="form-label">Collection Name *</label>
+                    <input
+                      className="form-input"
+                      value={form.name}
+                      onChange={e => set('name', e.target.value)}
+                      required
+                      placeholder="Festive Luxe 2025"
+                    />
+                  </div>
+
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label className="form-label">Season</label>
+                      <select className="form-select" value={form.season} onChange={e => set('season', e.target.value)}>
+                        {SEASONS.map(s => <option key={s}>{s}</option>)}
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Year</label>
+                      <input
+                        className="form-input"
+                        type="number"
+                        value={form.year}
+                        onChange={e => set('year', e.target.value)}
+                        min="2020" max="2030"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label className="form-label">Process Status</label>
+                      <select className="form-select" value={form.status} onChange={e => set('status', e.target.value)}>
+                        {STATUSES.map(s => <option key={s}>{s}</option>)}
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Launch Identity Date</label>
+                      <input
+                        className="form-input"
+                        type="date"
+                        value={form.launchDate}
+                        onChange={e => set('launchDate', e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Aesthetic Theme</label>
+                    <input
+                      className="form-input"
+                      value={form.theme}
+                      onChange={e => set('theme', e.target.value)}
+                      placeholder="Midnight Garden…"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Creative Vision</label>
+                    <textarea
+                      className="form-textarea"
+                      rows={3}
+                      value={form.description}
+                      onChange={e => set('description', e.target.value)}
+                      placeholder="Describe this collection's unique story…"
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 28 }}>
+                    <button type="button" className="btn btn-ghost" onClick={() => setShowModal(false)}>
+                      Cancel
+                    </button>
+                    <button type="submit" className={`btn btn-primary ${saving ? 'btn-loading' : ''}`} disabled={saving}>
+                      <span>{saving ? 'Syncing…' : editing ? 'Finalize Changes' : 'Launch Collection'}</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

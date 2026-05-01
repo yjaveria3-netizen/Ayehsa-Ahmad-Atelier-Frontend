@@ -301,12 +301,9 @@ export default function Products() {
       fetchProducts();
     } catch (err) {
       console.error('Delete product error:', err.message);
-      toast.error(err.response?.data?.message || 'Failed to delete product. Please try again.');
+      toast.error(err.response?.data?.message || 'Failed to delete product');
     }
   };
-
-  const margin = (cost, price) =>
-    cost && price ? Math.round(((price - cost) / price) * 100) : null;
 
   /* ── Render ── */
   return (
@@ -321,7 +318,7 @@ export default function Products() {
               <p className="page-subtitle">
                 {total} active items in your fashion catalog
                 {user?.storageType === 'google_drive' && user?.driveConnected && (
-                  <span style={{ marginLeft: 14, color: 'var(--accent)', fontSize: '0.75rem' }}>
+                  <span style={{ marginLeft: 14, color: 'var(--accent)', fontSize: '0.75rem', fontWeight: 700 }}>
                     ● Vault Secured
                   </span>
                 )}
@@ -329,29 +326,26 @@ export default function Products() {
             </div>
           </Reveal>
           <Reveal delay={0.15} direction="left">
-            <MagneticButton
-              className="btn btn-primary"
-              onClick={openAdd}
-            >
+            <button className="btn btn-primary" onClick={openAdd}>
               + Add Item
-            </MagneticButton>
+            </button>
           </Reveal>
         </div>
       </div>
 
       <div className="page-body">
 
-        {/* Stats */}
+        {/* Stats Row */}
         {loading && !stats ? (
-          <StatsLoadingGrid />
+          <StatsLoadingGrid count={4} />
         ) : stats && (
           <StaggerContainer staggerDelay={0.06} delayStart={0.1}>
-            <div className="stats-grid">
+            <div className="stats-grid" style={{ marginBottom: 28 }}>
               {[
                 { label: 'Total Items', value: stats.total || 0, color: 'var(--text-primary)' },
                 { label: 'Low Stock', value: stats.lowStock || 0, color: '#FBBF24' },
                 { label: 'Categories', value: stats.categories || 0, color: 'var(--text-primary)' },
-                { label: 'Inventory ROI', value: formatCurrency(stats.totalValue), color: 'var(--accent)', isText: true },
+                { label: 'Inventory Value', value: formatCurrency(stats.totalValue), color: 'var(--accent)', isText: true },
               ].map((s) => (
                 <StaggerItem key={s.label}>
                   <GlowCard className="stat-card card glass">
@@ -366,21 +360,22 @@ export default function Products() {
           </StaggerContainer>
         )}
 
-        {/* Toolbar */}
-        <div className="table-toolbar" style={{ marginTop: 28 }}>
-          <div className="filter-group">
-            <div className="search-input-wrapper glass" style={{ border: '1px solid var(--border-faint)' }}>
-              <span className="search-icon">🔍</span>
-              <input
-                className="form-input search-input"
-                style={{ background: 'transparent', border: 'none' }}
-                placeholder="Search name, SKU…"
-                value={searchInput}
-                onChange={e => { setSearchInput(e.target.value); setPage(1); }}
-              />
-            </div>
+        {/* Filters & Search */}
+        <div className="commerce-toolbar" style={{ marginBottom: 24, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+          <div className="search-input-wrapper" style={{ maxWidth: 380 }}>
+            <span className="search-icon">🔍</span>
+            <input
+              className="form-input search-input"
+              placeholder="Search name, SKU, tag…"
+              value={searchInput}
+              onChange={e => { setSearchInput(e.target.value); setPage(1); }}
+            />
+          </div>
+          
+          <div style={{ display: 'flex', gap: 10 }}>
             <select
-              className="form-select status-filter"
+              className="form-select"
+              style={{ width: 180, padding: '10px 18px', fontSize: '0.85rem' }}
               value={categoryFilter}
               onChange={e => { setCategoryFilter(e.target.value); setPage(1); }}
             >
@@ -388,7 +383,8 @@ export default function Products() {
               {CATEGORIES.map(c => <option key={c}>{c}</option>)}
             </select>
             <select
-              className="form-select status-filter"
+              className="form-select"
+              style={{ width: 160, padding: '10px 18px', fontSize: '0.85rem' }}
               value={statusFilter}
               onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
             >
@@ -400,7 +396,7 @@ export default function Products() {
 
         {/* Table */}
         <Reveal delay={0.05}>
-          <div className="table-container" style={{ marginTop: 20 }}>
+          <div className="table-container">
             {loading ? (
               <TableLoadingRows cols={9} rows={7} />
             ) : loadError ? (
@@ -436,16 +432,16 @@ export default function Products() {
                     >
                       <td>
                         {p.imageThumbnailUrl || p.imageViewUrl ? (
-                          <div className="product-image-cell">
+                          <div className="product-image-cell" style={{ position: 'relative', width: 44, height: 44 }}>
                             <img
                               src={p.imageThumbnailUrl || p.imageViewUrl}
                               alt={p.name}
-                              style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border-faint)' }}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10, border: '1px solid var(--border-glass)' }}
                             />
                           </div>
                         ) : (
                           <div style={{
-                            width: 44, height: 44, borderRadius: 8, display: 'flex',
+                            width: 44, height: 44, borderRadius: 10, display: 'flex',
                             alignItems: 'center', justifyContent: 'center',
                             background: 'var(--accent-soft)', fontSize: '1.2rem',
                             border: '1px solid var(--accent-border)',
@@ -455,20 +451,20 @@ export default function Products() {
                         )}
                       </td>
                       <td>
-                        <div className="cell-primary">{p.name}</div>
-                        <div style={{ display: 'flex', gap: 5, marginTop: 4, flexWrap: 'wrap' }}>
+                        <div className="cell-primary" style={{ marginBottom: 4 }}>{p.name}</div>
+                        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                           <span className="id-chip">{p.productId}</span>
-                          {p.sku && <span className="id-chip" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)' }}>{p.sku}</span>}
+                          {p.sku && <span className="id-chip" style={{ background: 'var(--bg-layer2)', color: 'var(--text-muted)' }}>{p.sku}</span>}
                         </div>
                       </td>
-                      <td>{p.category}</td>
-                      <td style={{ color: 'var(--text-faint)' }}>{p.season}</td>
+                      <td style={{ fontSize: '0.85rem', fontWeight: 600 }}>{p.category}</td>
+                      <td style={{ color: 'var(--text-faint)', fontSize: '0.85rem' }}>{p.season}</td>
                       <td>
-                        <div className="cell-primary">
+                        <div className="cell-primary" style={{ fontSize: '0.9rem' }}>
                           {formatCurrency(p.isOnSale && p.salePrice ? p.salePrice : p.price)}
                         </div>
                         {p.isOnSale && p.salePrice && (
-                          <div style={{ fontSize: '0.72rem', opacity: 0.4, textDecoration: 'line-through' }}>
+                          <div style={{ fontSize: '0.7rem', opacity: 0.4, textDecoration: 'line-through' }}>
                             {formatCurrency(p.price)}
                           </div>
                         )}
@@ -476,9 +472,10 @@ export default function Products() {
                       <td>
                         {margin(p.costPrice, p.price) !== null ? (
                           <span style={{
-                            fontWeight: 700,
+                            fontWeight: 800,
+                            fontSize: '0.85rem',
                             color: margin(p.costPrice, p.price) > 40 ? '#34D399'
-                              : margin(p.costPrice, p.price) > 20 ? '#FBBF24' : '#F87171',
+                              : margin(p.costPrice, p.price) > 20 ? '#FBBF24' : '#C97A6D',
                           }}>
                             {margin(p.costPrice, p.price)}%
                           </span>
@@ -486,21 +483,21 @@ export default function Products() {
                       </td>
                       <td>
                         {p.stockQty <= 0 ? (
-                          <span style={{ background: 'rgba(248,113,113,0.15)', color: '#F87171', padding: '4px 10px', borderRadius: 12, fontWeight: 700, fontSize: '0.85rem' }}>
-                            Out of Stock
+                          <span style={{ background: 'rgba(201,122,109,0.1)', color: '#C97A6D', padding: '4px 10px', borderRadius: 99, fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', border: '1px solid rgba(201,122,109,0.2)' }}>
+                            Sold Out
                           </span>
                         ) : p.stockQty <= (p.lowStockAlert || 5) ? (
-                          <span style={{ background: 'rgba(251,191,36,0.15)', color: '#FBBF24', padding: '4px 10px', borderRadius: 12, fontWeight: 700, fontSize: '0.85rem' }}>
-                            {p.stockQty} - Low Stock
+                          <span style={{ background: 'rgba(251,191,36,0.1)', color: '#FBBF24', padding: '4px 10px', borderRadius: 99, fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', border: '1px solid rgba(251,191,36,0.2)' }}>
+                            Low: {p.stockQty}
                           </span>
                         ) : (
-                          <span style={{ color: '#34D399', fontWeight: 700, padding: '4px 10px' }}>
+                          <span style={{ color: '#34D399', fontWeight: 800, fontSize: '0.9rem' }}>
                             {p.stockQty}
                           </span>
                         )}
                       </td>
                       <td>
-                        <span className={`badge badge-${(p.status || 'active').toLowerCase().replace(/\s+/g, '-')}`}>
+                        <span className={`badge badge-${(p.status || 'active').toLowerCase().replace(/\s+/g, '-')}`} style={{ fontSize: '0.6rem' }}>
                           {p.status || 'Active'}
                         </span>
                       </td>
@@ -511,26 +508,24 @@ export default function Products() {
                             whileTap={{ scale: 0.9 }}
                             onClick={() => openEdit(p)}
                             style={{
-                              width: 30, height: 30, borderRadius: 7,
+                              width: 32, height: 32, borderRadius: 8,
                               border: '1px solid var(--accent-border)',
                               background: 'var(--accent-soft)', color: 'var(--accent)',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              cursor: 'pointer', fontSize: '0.8rem',
+                              cursor: 'pointer', fontSize: '0.85rem',
                             }}
-                            title="Edit"
                           >✏️</motion.button>
                           <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => handleDelete(p._id)}
                             style={{
-                              width: 30, height: 30, borderRadius: 7,
-                              border: '1px solid rgba(248,113,113,0.25)',
-                              background: 'rgba(248,113,113,0.08)', color: '#F87171',
+                              width: 32, height: 32, borderRadius: 8,
+                              border: '1px solid rgba(201,122,109,0.2)',
+                              background: 'rgba(201,122,109,0.05)', color: '#C97A6D',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              cursor: 'pointer', fontSize: '0.8rem',
+                              cursor: 'pointer', fontSize: '0.85rem',
                             }}
-                            title="Delete"
                           >🗑️</motion.button>
                         </div>
                       </td>
@@ -670,8 +665,8 @@ export default function Products() {
                     <button type="button" className="btn btn-ghost" onClick={() => setShowModal(false)}>
                       Cancel
                     </button>
-                    <button type="submit" className="btn btn-primary" disabled={saving}>
-                      {saving ? 'Saving…' : editing ? 'Update Product' : 'Add Product'}
+                    <button type="submit" className={`btn btn-primary ${saving ? 'btn-loading' : ''}`} disabled={saving}>
+                      <span>{saving ? 'Saving…' : editing ? 'Update Product' : 'Add Product'}</span>
                     </button>
                   </div>
 
