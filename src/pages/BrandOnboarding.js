@@ -50,7 +50,6 @@ export default function BrandOnboarding() {
   };
 
   return (
-  return (
     <div className="onboarding-page">
       <div className="vibe-noise" />
       <div className="vibe-grid" />

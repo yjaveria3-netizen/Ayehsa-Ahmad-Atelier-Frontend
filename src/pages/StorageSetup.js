@@ -85,7 +85,6 @@ export default function StorageSetup() {
   };
 
   return (
-  return (
     <div className="onboarding-page">
       <div className="vibe-noise" />
       <div className="vibe-grid" />
