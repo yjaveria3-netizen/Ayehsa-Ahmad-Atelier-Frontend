@@ -5,7 +5,11 @@
    Color Palette: Deep Navy + Cyan/Teal + Violet + Gold
    ============================================================ */
 
-:root {
+/* ============================================================
+   DARK THEME (Default)
+   ============================================================ */
+:root,
+[data-theme="dark"] {
   /* Core Colors */
   --bg-void: #030712;
   --bg-base: #0f172a;
@@ -45,6 +49,14 @@
   --emerald-soft: rgba(16, 185, 129, 0.12);
   --amber: #f59e0b;
   --amber-soft: rgba(245, 158, 11, 0.12);
+  --rose: #f43f5e;
+  --rose-soft: rgba(244, 63, 94, 0.12);
+  --sky: #0ea5e9;
+  --sky-soft: rgba(14, 165, 233, 0.12);
+  --lime: #84cc16;
+  --lime-soft: rgba(132, 204, 22, 0.12);
+  --fuchsia: #d946ef;
+  --fuchsia-soft: rgba(217, 70, 239, 0.12);
   --error: #ef4444;
   --error-soft: rgba(239, 68, 68, 0.12);
 
@@ -61,6 +73,11 @@
   --border-faint: rgba(248, 250, 252, 0.06);
   --border-subtle: rgba(248, 250, 252, 0.10);
   --border-glass: rgba(255, 255, 255, 0.10);
+
+  /* Glass backgrounds */
+  --glass-bg: rgba(30, 41, 59, 0.60);
+  --glass-bg-strong: rgba(30, 41, 59, 0.80);
+  --glass-bg-light: rgba(30, 41, 59, 0.40);
 
   /* Layout */
   --sidebar-width: 280px;
@@ -84,6 +101,81 @@
   --z-modal: 500;
   --z-tooltip: 600;
   --z-toast: 700;
+}
+
+/* ============================================================
+   LIGHT THEME
+   Elegant warm palette with cream/ivory backgrounds
+   ============================================================ */
+[data-theme="light"] {
+  /* Core Colors — Warm cream palette */
+  --bg-void: #faf8f5;
+  --bg-base: #fefcf9;
+  --bg-layer1: #f5f3f0;
+  --bg-layer2: #ebe8e4;
+  --bg-layer3: #ddd9d4;
+  --bg-surface: rgba(6, 182, 212, 0.04);
+
+  /* Primary Accent — Deeper cyan for contrast */
+  --accent: #0891b2;
+  --accent-deep: #0e7490;
+  --accent-light: #06b6d4;
+  --accent-soft: rgba(8, 145, 178, 0.10);
+  --accent-glow: rgba(8, 145, 178, 0.20);
+  --accent-border: rgba(8, 145, 178, 0.20);
+
+  /* Secondary — Richer violet */
+  --secondary: #9333ea;
+  --secondary-deep: #7c3aed;
+  --secondary-soft: rgba(147, 51, 234, 0.10);
+  --secondary-glow: rgba(147, 51, 234, 0.18);
+
+  /* Gold — Rich amber */
+  --gold: #d97706;
+  --gold-soft: rgba(217, 119, 6, 0.10);
+  --gold-glow: rgba(217, 119, 6, 0.18);
+
+  /* Text — Dark warm neutrals */
+  --text-primary: #1c1917;
+  --text-secondary: rgba(28, 25, 23, 0.80);
+  --text-muted: rgba(28, 25, 23, 0.55);
+  --text-faint: rgba(28, 25, 23, 0.35);
+  --text-accent: var(--accent);
+
+  /* Semantic Colors */
+  --emerald: #059669;
+  --emerald-soft: rgba(5, 150, 105, 0.10);
+  --amber: #d97706;
+  --amber-soft: rgba(217, 119, 6, 0.10);
+  --rose: #e11d48;
+  --rose-soft: rgba(225, 29, 72, 0.10);
+  --sky: #0284c7;
+  --sky-soft: rgba(2, 132, 199, 0.10);
+  --lime: #65a30d;
+  --lime-soft: rgba(101, 163, 13, 0.10);
+  --fuchsia: #c026d3;
+  --fuchsia-soft: rgba(192, 38, 211, 0.10);
+  --error: #dc2626;
+  --error-soft: rgba(220, 38, 38, 0.10);
+
+  /* Shadows — Softer, warmer tones */
+  --sha-sm: 0 4px 12px rgba(28, 25, 23, 0.08);
+  --sha-md: 0 12px 32px rgba(28, 25, 23, 0.12);
+  --sha-lg: 0 24px 64px rgba(28, 25, 23, 0.16);
+  --sha-xl: 0 40px 90px rgba(28, 25, 23, 0.20);
+  --sha-accent: 0 0 40px var(--accent-glow);
+  --sha-secondary: 0 0 40px var(--secondary-glow);
+  --sha-gold: 0 0 40px var(--gold-glow);
+
+  /* Borders — Warm subtle tones */
+  --border-faint: rgba(28, 25, 23, 0.06);
+  --border-subtle: rgba(28, 25, 23, 0.10);
+  --border-glass: rgba(28, 25, 23, 0.08);
+
+  /* Glass backgrounds — Light frosted cream */
+  --glass-bg: rgba(254, 252, 249, 0.80);
+  --glass-bg-strong: rgba(254, 252, 249, 0.92);
+  --glass-bg-light: rgba(254, 252, 249, 0.65);
 }
 
 /* ============================================================
@@ -169,21 +261,21 @@ img {
    GLASSMORPHISM UTILITIES
    ============================================================ */
 .glass {
-  background: rgba(30, 41, 59, 0.60);
+  background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur)) saturate(180%);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
   border: 1px solid var(--border-glass);
 }
 
 .glass-strong {
-  background: rgba(30, 41, 59, 0.80);
+  background: var(--glass-bg-strong);
   backdrop-filter: blur(30px) saturate(200%);
   -webkit-backdrop-filter: blur(30px) saturate(200%);
   border: 1px solid var(--border-glass);
 }
 
 .glass-light {
-  background: rgba(30, 41, 59, 0.40);
+  background: var(--glass-bg-light);
   backdrop-filter: blur(12px) saturate(150%);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
   border: 1px solid var(--border-glass);
@@ -973,7 +1065,7 @@ img {
    ============================================================ */
 .table-container {
   overflow-x: auto;
-  background: rgba(30, 41, 59, 0.40);
+  background: var(--glass-bg-light);
   backdrop-filter: blur(12px);
   border-radius: var(--radius);
   border: 1px solid var(--border-glass);
@@ -994,7 +1086,7 @@ th {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   border-bottom: 1px solid var(--border-faint);
-  background: rgba(15, 23, 42, 0.50);
+  background: var(--bg-layer1);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -1053,12 +1145,21 @@ tr:hover .row-actions {
   position: fixed;
   inset: 0;
   z-index: var(--z-modal-backdrop);
-  background: rgba(3, 7, 18, 0.80);
+  background: var(--bg-void);
+  opacity: 0.92;
   backdrop-filter: blur(12px);
   display: flex;
   align-items: flex-end;
   justify-content: center;
   padding: 24px;
+}
+
+[data-theme="dark"] .modal-overlay {
+  background: rgba(3, 7, 18, 0.85);
+}
+
+[data-theme="light"] .modal-overlay {
+  background: rgba(28, 25, 23, 0.65);
 }
 
 @media (min-width: 640px) {
@@ -1616,7 +1717,7 @@ tr:hover .row-actions {
 }
 
 .landing-nav--scrolled {
-  background: rgba(15, 23, 42, 0.85);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--border-glass);
@@ -1724,7 +1825,7 @@ tr:hover .row-actions {
   flex-direction: column;
   padding: 16px 32px 24px;
   overflow: hidden;
-  background: rgba(15, 23, 42, 0.95);
+  background: var(--glass-bg-strong);
   border-top: 1px solid var(--border-faint);
 }
 
