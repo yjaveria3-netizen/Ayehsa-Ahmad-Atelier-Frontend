@@ -598,7 +598,7 @@ export default function Layout() {
         </AnimatePresence>
 
         {/* Mobile Bottom Navigation */}
-        {isMobile && (
+        {isMobile && !sidebarOpen && (
           <nav style={{
             position: 'fixed',
             bottom: 0,
