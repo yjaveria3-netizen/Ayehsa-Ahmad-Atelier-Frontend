@@ -1,8 +1,8 @@
 /**
- * LibasTrack — Rose Edition Motion System
- * Built on Framer Motion v10
+ * LibasTrack — Luxury Motion System
+ * Built on Framer Motion
  * 
- * Inspired by premium motion sites like tenbinlabs.xyz:
+ * Premium motion components with:
  *  • Scroll-triggered reveals
  *  • Floating ambient orbs
  *  • Magnetic buttons
@@ -12,9 +12,9 @@
  *  • Liquid cursor follower
  */
 
-import React, { useRef, useEffect, useState, createContext, useContext } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
-  motion, AnimatePresence, useScroll, useTransform,
+  motion, AnimatePresence, useScroll,
   useMotionValue, useSpring, useInView,
 } from 'framer-motion';
 
@@ -24,6 +24,7 @@ import {
 export const ease = {
   out:    [0.16, 1, 0.3, 1],
   inOut:  [0.83, 0, 0.17, 1],
+  smooth: [0.25, 0.46, 0.45, 0.94],
   spring: { type:'spring', stiffness:260, damping:22 },
   springGentle: { type:'spring', stiffness:180, damping:28 },
   springBouncy: { type:'spring', stiffness:320, damping:18 },
@@ -31,7 +32,6 @@ export const ease = {
 
 /* ─────────────────────────────────────────
    PAGE TRANSITION WRAPPER
-   Smooth fade + slight rise between routes
 ───────────────────────────────────────── */
 export function PageTransition({ children }) {
   return (
@@ -51,12 +51,11 @@ export function PageTransition({ children }) {
 
 /* ─────────────────────────────────────────
    SCROLL REVEAL
-   Elements fade in as they enter viewport
 ───────────────────────────────────────── */
 export function Reveal({
   children,
   delay = 0,
-  direction = 'up',   // 'up' | 'down' | 'left' | 'right' | 'none'
+  direction = 'up',
   distance = 24,
   duration = 0.6,
   once = true,
@@ -90,7 +89,6 @@ export function Reveal({
 
 /* ─────────────────────────────────────────
    STAGGERED CONTAINER
-   Children animate in sequence
 ───────────────────────────────────────── */
 export function StaggerContainer({ children, staggerDelay = 0.08, delayStart = 0, className, style }) {
   const ref = useRef(null);
@@ -136,7 +134,6 @@ export function StaggerItem({ children, direction = 'up', distance = 20, classNa
 
 /* ─────────────────────────────────────────
    SPLIT TEXT REVEAL
-   Each word slides in like Tenbin hero
 ───────────────────────────────────────── */
 export function SplitText({ text, className, style, delay = 0, stagger = 0.06, tag = 'h1' }) {
   const ref = useRef(null);
@@ -167,8 +164,7 @@ export function SplitText({ text, className, style, delay = 0, stagger = 0.06, t
 }
 
 /* ─────────────────────────────────────────
-   MAGNETIC BUTTON (Tenbin signature effect)
-   Button pulls toward cursor on hover
+   MAGNETIC BUTTON
 ───────────────────────────────────────── */
 export function MagneticButton({ children, strength = 0.35, className, style, onClick, disabled, type }) {
   const ref = useRef(null);
@@ -208,7 +204,6 @@ export function MagneticButton({ children, strength = 0.35, className, style, on
 
 /* ─────────────────────────────────────────
    TILT CARD
-   3-D perspective tilt on mouse hover
 ───────────────────────────────────────── */
 export function TiltCard({ children, intensity = 12, className, style, onClick }) {
   const ref = useRef(null);
@@ -241,11 +236,10 @@ export function TiltCard({ children, intensity = 12, className, style, onClick }
       whileHover={{ scale: 1.02 }}
       transition={ease.springGentle}
     >
-      {/* Glass shine layer */}
       <motion.div
         style={{
           position:'absolute', inset:0, borderRadius:'inherit',
-          background:'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 60%)',
+          background:'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%)',
           pointerEvents:'none', zIndex:1,
         }}
       />
@@ -255,8 +249,7 @@ export function TiltCard({ children, intensity = 12, className, style, onClick }
 }
 
 /* ─────────────────────────────────────────
-   FLOATING AMBIENT ORBS (background blobs)
-   Like Tenbin's glowing gradient spheres
+   FLOATING AMBIENT ORBS
 ───────────────────────────────────────── */
 export function AmbientOrbs() {
   return (
@@ -264,34 +257,34 @@ export function AmbientOrbs() {
       position:'fixed', inset:0, pointerEvents:'none',
       zIndex:0, overflow:'hidden',
     }}>
-      {/* Large rose orb — top left */}
+      {/* Cyan orb — top left */}
       <motion.div
         style={{
           position:'absolute', top:'-15%', left:'-10%',
           width:500, height:500, borderRadius:'50%',
-          background:'radial-gradient(circle, rgba(212,117,107,0.12) 0%, transparent 70%)',
+          background:'radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 70%)',
           filter:'blur(40px)',
         }}
         animate={{ x:[0,30,0], y:[0,20,0], scale:[1,1.08,1] }}
         transition={{ duration:14, repeat:Infinity, ease:'easeInOut' }}
       />
-      {/* Medium gold orb — top right */}
+      {/* Violet orb — top right */}
       <motion.div
         style={{
           position:'absolute', top:'5%', right:'-8%',
           width:360, height:360, borderRadius:'50%',
-          background:'radial-gradient(circle, rgba(201,169,110,0.1) 0%, transparent 70%)',
+          background:'radial-gradient(circle, rgba(168,85,247,0.08) 0%, transparent 70%)',
           filter:'blur(40px)',
         }}
         animate={{ x:[0,-25,0], y:[0,35,0], scale:[1,1.06,1] }}
         transition={{ duration:17, repeat:Infinity, ease:'easeInOut', delay:3 }}
       />
-      {/* Small blush orb — bottom center */}
+      {/* Gold orb — bottom center */}
       <motion.div
         style={{
           position:'absolute', bottom:'10%', left:'35%',
           width:280, height:280, borderRadius:'50%',
-          background:'radial-gradient(circle, rgba(242,197,191,0.14) 0%, transparent 70%)',
+          background:'radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%)',
           filter:'blur(35px)',
         }}
         animate={{ x:[0,20,0], y:[0,-20,0], scale:[1,1.05,1] }}
@@ -303,7 +296,6 @@ export function AmbientOrbs() {
 
 /* ─────────────────────────────────────────
    CURSOR FOLLOWER
-   Soft liquid dot that chases the cursor
 ───────────────────────────────────────── */
 export function CursorFollower() {
   const cx = useMotionValue(-100);
@@ -334,10 +326,10 @@ export function CursorFollower() {
         width: hoveringBtn ? 48 : 14,
         height: hoveringBtn ? 48 : 14,
         borderRadius:'50%',
-        background: hoveringBtn ? 'rgba(212,117,107,0.15)' : 'rgba(212,117,107,0.5)',
-        border: hoveringBtn ? '1px solid rgba(212,117,107,0.4)' : 'none',
+        background: hoveringBtn ? 'rgba(6,182,212,0.15)' : 'rgba(6,182,212,0.5)',
+        border: hoveringBtn ? '1px solid rgba(6,182,212,0.4)' : 'none',
         pointerEvents:'none', zIndex:9999,
-        mixBlendMode:'multiply',
+        mixBlendMode:'screen',
         transition:'width 0.3s, height 0.3s, background 0.3s',
       }}
     />
@@ -345,17 +337,18 @@ export function CursorFollower() {
 }
 
 /* ─────────────────────────────────────────
-   SCROLL PROGRESS BAR (top of page)
+   SCROLL PROGRESS BAR
 ───────────────────────────────────────── */
 export function ScrollProgress() {
   const { scrollYProgress } = useScroll();
   return (
     <motion.div
       style={{
-        position:'fixed', top:3, left:0, right:0, height:2,
-        background:'var(--rose)', scaleX:scrollYProgress,
-        transformOrigin:'left', zIndex:400,
-        boxShadow:'0 0 8px rgba(212,117,107,0.6)',
+        position:'fixed', top:0, left:0, right:0, height:2,
+        background:'linear-gradient(90deg, #06b6d4, #a855f7)',
+        scaleX:scrollYProgress,
+        transformOrigin:'left', zIndex:9999,
+        boxShadow:'0 0 12px rgba(6,182,212,0.6)',
       }}
     />
   );
@@ -363,7 +356,6 @@ export function ScrollProgress() {
 
 /* ─────────────────────────────────────────
    COUNTER ANIMATION
-   Numbers count up on scroll-entry
 ───────────────────────────────────────── */
 export function AnimatedCounter({ value, prefix = '', suffix = '', duration = 1.4, delay = 0 }) {
   const ref = useRef(null);
@@ -391,51 +383,7 @@ export function AnimatedCounter({ value, prefix = '', suffix = '', duration = 1.
 }
 
 /* ─────────────────────────────────────────
-   FLOATING ROSE PETALS (decorative)
-   Subtle falling elements in background
-───────────────────────────────────────── */
-export function FloatingPetals({ count = 6 }) {
-  const petals = Array.from({ length: count }, (_, i) => ({
-    id: i,
-    left: `${10 + (i * 15)}%`,
-    delay: i * 2.5,
-    duration: 12 + (i * 2),
-    size: 6 + (i % 3) * 4,
-    opacity: 0.08 + (i % 4) * 0.04,
-  }));
-
-  return (
-    <div style={{ position:'fixed', inset:0, pointerEvents:'none', zIndex:0, overflow:'hidden' }}>
-      {petals.map(p => (
-        <motion.div
-          key={p.id}
-          style={{
-            position:'absolute', top:'-30px', left:p.left,
-            width:p.size, height:p.size,
-            borderRadius:'50% 0 50% 0',
-            background:'var(--rose)',
-            opacity:p.opacity,
-          }}
-          animate={{
-            y: ['0vh', '110vh'],
-            x: [0, 30, -20, 15, 0],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            duration: p.duration,
-            delay: p.delay,
-            repeat: Infinity,
-            ease: 'linear',
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────
-   HOVER GLOW CARD
-   Rose glow follows mouse inside card
+   GLOW CARD
 ───────────────────────────────────────── */
 export function GlowCard({ children, className, style, onClick }) {
   const ref = useRef(null);
@@ -461,11 +409,10 @@ export function GlowCard({ children, className, style, onClick }) {
       onClick={onClick}
       whileHover={{ y: -3, transition: ease.springGentle }}
     >
-      {/* Radial glow that follows cursor */}
       <motion.div
         style={{
           position:'absolute', inset:0, pointerEvents:'none', borderRadius:'inherit',
-          background:`radial-gradient(200px circle at ${glowPos.x}% ${glowPos.y}%, rgba(212,117,107,0.1) 0%, transparent 70%)`,
+          background:`radial-gradient(200px circle at ${glowPos.x}% ${glowPos.y}%, rgba(6,182,212,0.1) 0%, transparent 70%)`,
           opacity: isHovered ? 1 : 0,
           transition:'opacity 0.3s',
           zIndex:0,
@@ -479,20 +426,20 @@ export function GlowCard({ children, className, style, onClick }) {
 }
 
 /* ─────────────────────────────────────────
-   SKELETON PULSE with shimmer
+   SKELETON PULSE
 ───────────────────────────────────────── */
 export function MotionSkeleton({ width, height, borderRadius = 8, className }) {
   return (
     <motion.div
       className={className}
-      style={{ width, height, borderRadius, overflow:'hidden', background:'rgba(212,117,107,0.07)', position:'relative' }}
+      style={{ width, height, borderRadius, overflow:'hidden', background:'rgba(6,182,212,0.07)', position:'relative' }}
       animate={{ opacity:[0.5, 1, 0.5] }}
       transition={{ duration:1.8, repeat:Infinity, ease:'easeInOut' }}
     >
       <motion.div
         style={{
           position:'absolute', inset:0,
-          background:'linear-gradient(90deg, transparent, rgba(212,117,107,0.1), transparent)',
+          background:'linear-gradient(90deg, transparent, rgba(6,182,212,0.1), transparent)',
         }}
         animate={{ x:['-100%','100%'] }}
         transition={{ duration:1.5, repeat:Infinity, ease:'linear' }}
