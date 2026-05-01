@@ -105,6 +105,8 @@ export const QUICK_ACTIONS = [
     label: 'New Order', 
     desc: 'Record a sale', 
     icon: <ShoppingBag size={18} />, 
+    IconComponent: ShoppingBag,
+    gradient: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%)',
     to: '/orders',
     action: 'add'
   },
@@ -112,6 +114,8 @@ export const QUICK_ACTIONS = [
     label: 'Add Product', 
     desc: 'Add to inventory', 
     icon: <Package size={18} />, 
+    IconComponent: Package,
+    gradient: 'linear-gradient(135deg, var(--secondary) 0%, var(--secondary-deep) 100%)',
     to: '/products',
     action: 'add'
   },
@@ -119,6 +123,8 @@ export const QUICK_ACTIONS = [
     label: 'Add Customer', 
     desc: 'Register a buyer', 
     icon: <Users size={18} />, 
+    IconComponent: Users,
+    gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
     to: '/customers',
     action: 'add'
   },
@@ -126,6 +132,8 @@ export const QUICK_ACTIONS = [
     label: 'Add Supplier', 
     desc: 'New supply contact', 
     icon: <Truck size={18} />, 
+    IconComponent: Truck,
+    gradient: 'linear-gradient(135deg, var(--gold) 0%, #d97706 100%)',
     to: '/suppliers',
     action: 'add'
   },
@@ -133,6 +141,8 @@ export const QUICK_ACTIONS = [
     label: 'New Collection', 
     desc: 'Start a collection', 
     icon: <FolderOpen size={18} />, 
+    IconComponent: FolderOpen,
+    gradient: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
     to: '/collections',
     action: 'add'
   },
@@ -140,6 +150,8 @@ export const QUICK_ACTIONS = [
     label: 'Record Payment', 
     desc: 'Log a transaction', 
     icon: <CreditCard size={18} />, 
+    IconComponent: CreditCard,
+    gradient: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)',
     to: '/financial',
     action: 'add'
   },
