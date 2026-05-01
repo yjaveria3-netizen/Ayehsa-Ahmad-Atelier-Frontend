@@ -1,13 +1,17 @@
 import React from 'react';
 import { SkeletonStatCard, SkeletonTableRow } from './Skeleton';
+import { WifiOff, RefreshCw } from 'lucide-react';
 
 export function QueryErrorState({ message = 'Failed to load data.', onRetry }) {
   return (
     <div className="empty-state" style={{ marginTop: 12 }}>
-      <div style={{ fontSize: '2rem', marginBottom: 10 }}>📡</div>
+      <div className="empty-state__icon">
+        <WifiOff size={32} />
+      </div>
       <h3>We could not reach the server</h3>
       <p>{message}</p>
       <button className="btn btn-secondary" onClick={onRetry}>
+        <RefreshCw size={16} />
         Retry
       </button>
     </div>
