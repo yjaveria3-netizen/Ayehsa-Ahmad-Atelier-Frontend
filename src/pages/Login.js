@@ -3,6 +3,23 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ArrowLeft,
+  Sparkles,
+  Package,
+  ShoppingBag,
+  Users,
+  DollarSign,
+  RotateCcw,
+  Truck,
+  FileSpreadsheet,
+  CheckCircle2,
+  Shield,
+  Zap,
+  Lock,
+  Globe,
+  Loader2
+} from 'lucide-react';
 
 const TAGLINES = [
   'Perfectly organised.',
@@ -13,14 +30,29 @@ const TAGLINES = [
 ];
 
 const MODULES = [
-  { icon: '📦', label: 'Products' },
-  { icon: '🛍️', label: 'Orders' },
-  { icon: '👥', label: 'Customers' },
-  { icon: '💰', label: 'Financials' },
-  { icon: '↩️', label: 'Returns' },
-  { icon: '🏭', label: 'Suppliers' },
-  { icon: '📊', label: 'Sheets Sync' },
-  { icon: '✅', label: 'Checklist' },
+  { icon: Package, label: 'Products', color: 'var(--accent)' },
+  { icon: ShoppingBag, label: 'Orders', color: 'var(--secondary)' },
+  { icon: Users, label: 'Customers', color: 'var(--emerald)' },
+  { icon: DollarSign, label: 'Financials', color: 'var(--gold)' },
+  { icon: RotateCcw, label: 'Returns', color: 'var(--rose)' },
+  { icon: Truck, label: 'Suppliers', color: 'var(--sky)' },
+  { icon: FileSpreadsheet, label: 'Sheets Sync', color: 'var(--lime)' },
+  { icon: CheckCircle2, label: 'Checklist', color: 'var(--fuchsia)' },
+];
+
+const INFO_CARDS = [
+  { 
+    icon: Shield, 
+    title: 'Secure OAuth', 
+    desc: 'We never store your Google password.',
+    gradient: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%)'
+  },
+  { 
+    icon: Zap, 
+    title: 'Instant Setup', 
+    desc: 'Sheets and folders created automatically.',
+    gradient: 'linear-gradient(135deg, var(--gold) 0%, var(--amber) 100%)'
+  },
 ];
 
 export default function Login() {
@@ -51,55 +83,55 @@ export default function Login() {
   };
 
   return (
-    <div className="lt-login">
-
-      {/* Ambient */}
-      <div className="lt-ambient" aria-hidden="true">
-        <div className="lt-ambient-orb lt-ambient-orb--1" style={{ top: '10%', left: '10%' }} />
-        <div className="lt-ambient-orb lt-ambient-orb--2" style={{ bottom: '15%', right: '5%' }} />
-        <div className="lt-grain" />
+    <div className="auth-page">
+      {/* Ambient Background */}
+      <div className="auth-ambient" aria-hidden="true">
+        <div className="auth-ambient__orb auth-ambient__orb--1" />
+        <div className="auth-ambient__orb auth-ambient__orb--2" />
+        <div className="auth-ambient__orb auth-ambient__orb--3" />
+        <div className="auth-ambient__grid" />
       </div>
 
-      {/* ── LEFT PANEL ── */}
+      {/* Left Panel - Branding */}
       <motion.div
-        className="lt-login__panel lt-login__panel--left glass"
-        initial={{ opacity: 0, x: -50 }}
+        className="auth-panel auth-panel--left"
+        initial={{ opacity: 0, x: -60 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         aria-hidden="true"
       >
-        {/* Decorative large letter */}
-        <div className="lt-login__bg-letter" aria-hidden="true">L</div>
+        {/* Decorative Background Letter */}
+        <div className="auth-panel__bg-letter">L</div>
 
-        <div className="lt-login__panel-content">
-          {/* Back */}
+        <div className="auth-panel__content">
+          {/* Back Button */}
           <button
-            className="lt-login__back"
+            className="auth-back-btn"
             onClick={() => navigate('/')}
             tabIndex={-1}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Back to Home
+            <ArrowLeft size={16} />
+            <span>Back to Home</span>
           </button>
 
-          {/* Logo mark */}
-          <div className="lt-login__logo-row">
-            <div className="lt-nav__logo-icon" style={{ width: 48, height: 48, fontSize: '1.3rem' }}>
-              <span>L</span>
+          {/* Logo */}
+          <div className="auth-logo">
+            <div className="auth-logo__icon">
+              <Sparkles size={24} />
             </div>
-            <span className="lt-login__brand-name">LibasTrack</span>
+            <span className="auth-logo__text">LibasTrack</span>
           </div>
 
-          {/* Headline */}
-          <h1 className="lt-login__tagline-head">
+          {/* Animated Headline */}
+          <h1 className="auth-headline">
             Your brand.{' '}
             <AnimatePresence mode="wait">
               <motion.span
                 key={taglineIdx}
-                className="lt-login__tagline-swap"
-                initial={{ opacity: 0, y: 12 }}
+                className="auth-headline__swap"
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
+                exit={{ opacity: 0, y: -16 }}
                 transition={{ duration: 0.4 }}
               >
                 {TAGLINES[taglineIdx]}
@@ -107,145 +139,177 @@ export default function Login() {
             </AnimatePresence>
           </h1>
 
-          <p className="lt-login__panel-desc">
+          <p className="auth-description">
             LibasTrack gives fashion brands the complete toolkit — orders, inventory, CRM,
             suppliers, returns, and checklist — with live Google Sheets sync.
           </p>
 
-          {/* Modules orbit display */}
-          <div className="lt-login__modules">
-            {MODULES.map((m, i) => (
-              <motion.div
-                key={m.label}
-                className={`lt-login__module${i === activeModule ? ' active' : ''}`}
-                animate={{ scale: i === activeModule ? 1.1 : 1, opacity: i === activeModule ? 1 : 0.5 }}
-                transition={{ duration: 0.3 }}
-              >
-                <span className="lt-login__module-icon">{m.icon}</span>
-                <span className="lt-login__module-label">{m.label}</span>
-              </motion.div>
-            ))}
+          {/* Modules Grid */}
+          <div className="auth-modules">
+            {MODULES.map((m, i) => {
+              const Icon = m.icon;
+              return (
+                <motion.div
+                  key={m.label}
+                  className={`auth-module ${i === activeModule ? 'auth-module--active' : ''}`}
+                  animate={{ 
+                    scale: i === activeModule ? 1.08 : 1, 
+                    opacity: i === activeModule ? 1 : 0.5 
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div 
+                    className="auth-module__icon"
+                    style={{ 
+                      background: i === activeModule ? m.color : 'var(--bg-layer2)',
+                      boxShadow: i === activeModule ? `0 0 20px ${m.color}40` : 'none'
+                    }}
+                  >
+                    <Icon size={16} />
+                  </div>
+                  <span className="auth-module__label">{m.label}</span>
+                </motion.div>
+              );
+            })}
           </div>
 
           {/* Stats */}
-          <div className="lt-login__panel-stats">
+          <div className="auth-stats">
             {[
-              { val: '8', label: 'Modules' },
-              { val: '50+', label: 'Currencies' },
-              { val: '100%', label: 'Free' },
-            ].map((s, i) => (
-              <React.Fragment key={s.label}>
-                {i > 0 && <div className="lt-login__stat-sep" />}
-                <div className="lt-login__stat">
-                  <div className="lt-login__stat-val">{s.val}</div>
-                  <div className="lt-login__stat-label">{s.label}</div>
-                </div>
-              </React.Fragment>
-            ))}
+              { val: '8', label: 'Modules', icon: Package },
+              { val: '50+', label: 'Currencies', icon: Globe },
+              { val: '100%', label: 'Free', icon: Zap },
+            ].map((s, i) => {
+              const Icon = s.icon;
+              return (
+                <React.Fragment key={s.label}>
+                  {i > 0 && <div className="auth-stats__divider" />}
+                  <div className="auth-stat">
+                    <Icon size={16} className="auth-stat__icon" />
+                    <div className="auth-stat__value">{s.val}</div>
+                    <div className="auth-stat__label">{s.label}</div>
+                  </div>
+                </React.Fragment>
+              );
+            })}
           </div>
         </div>
       </motion.div>
 
-      {/* ── RIGHT PANEL ── */}
+      {/* Right Panel - Login Form */}
       <motion.div
-        className="lt-login__panel lt-login__panel--right"
-        initial={{ opacity: 0, x: 50 }}
+        className="auth-panel auth-panel--right"
+        initial={{ opacity: 0, x: 60 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="lt-login__form-wrap">
-
-          {/* Back (mobile only) */}
+        <div className="auth-form-container">
+          {/* Mobile Back Button */}
           <button
-            className="lt-login__back lt-login__back--mobile"
+            className="auth-back-btn auth-back-btn--mobile"
             onClick={() => navigate('/')}
             aria-label="Go back to home page"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Back to Home
+            <ArrowLeft size={16} />
+            <span>Back to Home</span>
           </button>
 
-          {/* Form header */}
+          {/* Form Header */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            className="auth-form-header"
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
+            transition={{ delay: 0.35, duration: 0.6 }}
           >
-            <div className="lt-login__form-eyebrow">Welcome to LibasTrack</div>
-            <h2 className="lt-login__form-title">Sign in to your account</h2>
-            <p className="lt-login__form-sub">
+            <div className="auth-form-eyebrow">
+              <Lock size={14} />
+              <span>Welcome to LibasTrack</span>
+            </div>
+            <h2 className="auth-form-title">Sign in to your account</h2>
+            <p className="auth-form-subtitle">
               Elevate your boutique management with a suite designed for the modern fashion house.
             </p>
           </motion.div>
 
           {/* Divider */}
-          <div className="lt-login__divider" aria-hidden="true" />
+          <motion.div 
+            className="auth-divider"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
+          />
 
-          {/* Google button */}
+          {/* Google Login Button */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.55, duration: 0.5 }}
           >
             <button
-              className="lt-google-btn"
+              className="auth-google-btn"
               onClick={handleLogin}
               disabled={isLoading}
-              aria-label={isLoading ? 'Redirecting to Google…' : 'Continue with Google'}
+              aria-label={isLoading ? 'Redirecting to Google...' : 'Continue with Google'}
               aria-busy={isLoading}
             >
-              {isLoading ? (
-                <div className="lt-google-btn__spinner" aria-hidden="true" />
-              ) : (
-                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                </svg>
-              )}
-              <span>{isLoading ? 'Redirecting to Google…' : 'Continue with Google'}</span>
+              <span className="auth-google-btn__bg" />
+              <span className="auth-google-btn__content">
+                {isLoading ? (
+                  <Loader2 size={20} className="auth-google-btn__spinner" />
+                ) : (
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                )}
+                <span>{isLoading ? 'Redirecting to Google...' : 'Continue with Google'}</span>
+              </span>
             </button>
           </motion.div>
 
-          {/* Info cards */}
+          {/* Info Cards */}
           <motion.div
-            className="lt-login__info-cards"
+            className="auth-info-cards"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.75, duration: 0.5 }}
+            transition={{ delay: 0.7, duration: 0.5 }}
           >
-            {[
-              { icon: '🔒', title: 'Secure OAuth', desc: 'We never store your Google password.' },
-              { icon: '⚡', title: 'Instant Setup', desc: 'Sheets and folders created automatically.' },
-            ].map(c => (
-              <div key={c.title} className="lt-login__info-card">
-                <span className="lt-login__info-icon">{c.icon}</span>
-                <div>
-                  <div className="lt-login__info-title">{c.title}</div>
-                  <div className="lt-login__info-desc">{c.desc}</div>
+            {INFO_CARDS.map((card) => {
+              const Icon = card.icon;
+              return (
+                <div key={card.title} className="auth-info-card">
+                  <div 
+                    className="auth-info-card__icon"
+                    style={{ background: card.gradient }}
+                  >
+                    <Icon size={18} />
+                  </div>
+                  <div className="auth-info-card__content">
+                    <div className="auth-info-card__title">{card.title}</div>
+                    <div className="auth-info-card__desc">{card.desc}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </motion.div>
 
-          {/* Footer */}
+          {/* Fine Print */}
           <motion.p
-            className="lt-login__fine-print"
+            className="auth-fine-print"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.9, duration: 0.5 }}
+            transition={{ delay: 0.85, duration: 0.5 }}
           >
             By continuing, you agree to our{' '}
-            <a href="/privacy" className="lt-login__fine-link">Privacy Policy</a>{' '}
+            <a href="/privacy" className="auth-fine-print__link">Privacy Policy</a>{' '}
             and{' '}
-            <a href="/terms" className="lt-login__fine-link">Terms of Service</a>.
+            <a href="/terms" className="auth-fine-print__link">Terms of Service</a>.
             LibasTrack is free to use.
           </motion.p>
-
         </div>
       </motion.div>
-
     </div>
   );
 }
