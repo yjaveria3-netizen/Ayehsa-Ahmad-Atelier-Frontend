@@ -235,12 +235,12 @@ export default function Dashboard() {
 
             <div style={{ marginTop: 16 }}>
               <Reveal delay={0.1} direction="up">
-                <span className="premium-gradient-text" style={{ fontSize: '1rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-                  {brand.name || 'LibasTrack'}
+                <span className="premium-gradient-text" style={{ fontSize: '1rem', fontWeight: 700, letterSpacing: '0.25em', textTransform: 'uppercase' }}>
+                  Atelier Command
                 </span>
               </Reveal>
               <SplitText
-                text={`Aisha Atelier`}
+                text={brand.name || 'LibasTrack'}
                 tag="h1"
                 className="page-title"
                 style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', marginTop: 8, marginBottom: 8 }}
