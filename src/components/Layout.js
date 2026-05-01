@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
 import { NAV_GROUPS, MOBILE_NAV_ITEMS } from '../utils/navItems';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,12 +13,15 @@ import {
   Bell,
   ChevronLeft,
   ChevronRight,
-  Cloud
+  Cloud,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { fadeUp, staggerContainer, staggerItem } from '../utils/motion';
 
 export default function Layout() {
   const { user, logout, storageType } = useAuth();
+  const { theme, toggle: toggleTheme, isDark } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -127,9 +131,9 @@ export default function Layout() {
           top: 0,
           left: 0,
           height: '100vh',
-          background: 'rgba(15, 23, 42, 0.95)',
+          background: 'var(--glass-bg-strong)',
           backdropFilter: 'blur(20px)',
-          borderRight: '1px solid rgba(255, 255, 255, 0.10)',
+          borderRight: '1px solid var(--border-glass)',
           display: 'flex',
           flexDirection: 'column',
           zIndex: 300,
@@ -191,6 +195,7 @@ export default function Layout() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
                   transition={{ duration: 0.2 }}
+                  style={{ flex: 1 }}
                 >
                   <div style={{
                     fontFamily: 'var(--font-display)',
@@ -214,6 +219,41 @@ export default function Layout() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Theme Toggle Button */}
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleTheme}
+              style={{
+                width: sidebarCollapsed ? '40px' : '36px',
+                height: sidebarCollapsed ? '40px' : '36px',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: isDark ? 'var(--accent-soft)' : 'var(--gold-soft)',
+                border: `1px solid ${isDark ? 'var(--accent-border)' : 'rgba(217, 119, 6, 0.25)'}`,
+                color: isDark ? 'var(--accent)' : 'var(--gold)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                flexShrink: 0,
+              }}
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={theme}
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                </motion.div>
+              </AnimatePresence>
+            </motion.button>
           </motion.div>
         </div>
 
@@ -463,7 +503,7 @@ export default function Layout() {
             right: 0,
             height: '64px',
             padding: '0 20px',
-            background: 'rgba(15, 23, 42, 0.95)',
+            background: 'var(--glass-bg-strong)',
             backdropFilter: 'blur(20px)',
             borderBottom: '1px solid var(--border-faint)',
             zIndex: 200,
@@ -501,24 +541,48 @@ export default function Layout() {
               LibasTrack
             </div>
 
-            <motion.button
-              whileHover={{ background: 'var(--accent-soft)' }}
-              whileTap={{ scale: 0.95 }}
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--text-muted)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              <Bell size={20} />
-            </motion.button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {/* Mobile Theme Toggle */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={toggleTheme}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: isDark ? 'var(--accent-soft)' : 'var(--gold-soft)',
+                  border: `1px solid ${isDark ? 'var(--accent-border)' : 'rgba(217, 119, 6, 0.25)'}`,
+                  color: isDark ? 'var(--accent)' : 'var(--gold)',
+                  cursor: 'pointer',
+                }}
+                aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              >
+                {isDark ? <Sun size={16} /> : <Moon size={16} />}
+              </motion.button>
+
+              <motion.button
+                whileHover={{ background: 'var(--accent-soft)' }}
+                whileTap={{ scale: 0.95 }}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--text-muted)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                <Bell size={18} />
+              </motion.button>
+            </div>
           </header>
         )}
 
@@ -543,7 +607,7 @@ export default function Layout() {
             left: 0,
             right: 0,
             height: '72px',
-            background: 'rgba(15, 23, 42, 0.98)',
+            background: 'var(--glass-bg-strong)',
             backdropFilter: 'blur(20px)',
             borderTop: '1px solid var(--border-faint)',
             zIndex: 300,
