@@ -439,11 +439,11 @@ export default function Dashboard() {
               >
                 <div className="card-noise" />
                 <div className="card-inner-glow" />
-                <div className="section-label" style={{ marginBottom: 32, display: 'flex', alignItems: 'center', gap: 12, fontSize: '0.7rem', letterSpacing: '0.2em', fontWeight: 900 }}>
-                  <Sparkles size={18} style={{ color: 'var(--accent)' }} />
-                  COMMAND CENTER
+                <div className="section-label" style={{ marginBottom: 32, display: 'flex', alignItems: 'center', gap: 12, fontSize: '0.7rem', letterSpacing: '0.25em', fontWeight: 900, color: 'var(--accent)' }}>
+                  <Sparkles size={16} className="pulse" />
+                  SYSTEM COMMAND
                 </div>
-                <div className="quick-actions-list" style={{ gap: 20 }}>
+                <div className="quick-actions-list" style={{ display: 'grid', gap: 16 }}>
                   {QUICK_ACTIONS.slice(0, 4).map(a => {
                     const ActionIcon = a.IconComponent;
                     return (
@@ -451,20 +451,15 @@ export default function Dashboard() {
                         key={a.label}
                         className="quick-action-button"
                         onClick={() => navigate(a.to)}
-                        style={{ 
-                          width: '100%', display: 'flex', alignItems: 'center', 
-                          padding: 18, borderRadius: 18, border: '1px solid var(--border-glass)', 
-                          background: 'rgba(255,255,255,0.02)', position: 'relative', zIndex: 2,
-                          cursor: 'pointer', textAlign: 'left'
-                        }}
                       >
-                        <div className="stat-icon-floating" style={{ background: a.gradient, width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                          {ActionIcon && <ActionIcon size={16} />}
+                        <div className="action-icon-wrap" style={{ background: a.gradient }}>
+                          {ActionIcon && <ActionIcon size={20} />}
                         </div>
-                        <div className="action-content" style={{ marginLeft: 16, flex: 1 }}>
-                          <div className="action-label" style={{ fontSize: '0.95rem', fontWeight: 800 }}>{a.label}</div>
+                        <div className="action-content">
+                          <div className="action-label" style={{ fontSize: '1rem', fontWeight: 800 }}>{a.label}</div>
+                          <div style={{ fontSize: '0.75rem', opacity: 0.4, marginTop: 2 }}>Execute Module</div>
                         </div>
-                        <ChevronRight size={16} className="action-arrow" style={{ opacity: 0.3 }} />
+                        <ChevronRight size={18} className="action-arrow" style={{ opacity: 0.2, marginLeft: 'auto' }} />
                       </button>
                     );
                   })}
