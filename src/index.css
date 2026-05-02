@@ -2731,14 +2731,14 @@ tr:hover .row-actions {
 
 .landing-btn--light {
   background: white;
-  color: var(--text-primary);
+  color: var(--accent-deep);
+  box-shadow: var(--sha-sm), 0 0 20px rgba(255, 255, 255, 0.2);
 }
 
 .landing-btn--light:hover {
-  background: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.95);
   transform: translateY(-2px);
-  box-shadow: var(--sha-lg);
-  color: white ;
+  box-shadow: var(--sha-md), 0 0 30px rgba(255, 255, 255, 0.3);
 }
 
 .landing-btn--large {
