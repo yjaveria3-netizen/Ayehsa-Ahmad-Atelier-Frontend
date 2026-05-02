@@ -37,6 +37,38 @@ export default function PrivacyPolicy() {
           </section>
 
           <section className="legal-page__section">
+            <h2>Google OAuth Scopes & Permissions</h2>
+            <p>
+              When you connect your Google account, LibasTrack requests specific permissions
+              (scopes) to provide functionality:
+            </p>
+            <ul>
+              <li>
+                <strong>Google Drive access:</strong> To create, read, and sync your data files
+                in your Google Drive
+              </li>
+              <li>
+                <strong>Google Sheets access:</strong> To create spreadsheets and sync your
+                business data (products, orders, customers, suppliers, returns, financials)
+                in real-time
+              </li>
+              <li>
+                <strong>Profile information:</strong> To personalize your account with your
+                name and profile picture
+              </li>
+              <li>
+                <strong>Email access:</strong> To verify your account and send necessary
+                notifications
+              </li>
+            </ul>
+            <p>
+              LibasTrack only uses these permissions to provide the requested features. We do
+              not access, read, or modify any of your other Google Drive files, emails, or
+              services beyond what is explicitly needed for the app to function.
+            </p>
+          </section>
+
+          <section className="legal-page__section">
             <h2>How We Use Information</h2>
             <ul>
               <li>To sign you in securely and maintain your session</li>

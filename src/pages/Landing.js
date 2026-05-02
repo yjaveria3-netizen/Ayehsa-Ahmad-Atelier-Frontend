@@ -25,6 +25,9 @@ import {
   Star,
   Quote,
   Play,
+  Lock,
+  Database,
+  Info,
 } from 'lucide-react';
 
 /* ─────────────────────────────────────────
@@ -133,6 +136,33 @@ const HOW_IT_WORKS = [
     title: 'Start managing',
     desc: 'Add products, log orders, track customers and finances — all syncing live to your sheets.',
     icon: Zap,
+  },
+];
+
+const DATA_PERMISSIONS = [
+  {
+    icon: Shield,
+    title: 'Google OAuth Authentication',
+    purpose: 'Secure login',
+    details: 'We use Google OAuth for secure, password-free sign-in. You can manage access anytime in your Google account settings.',
+  },
+  {
+    icon: Database,
+    title: 'Google Sheets & Drive Access',
+    purpose: 'Live data sync',
+    details: 'We request access to your Google Drive and Sheets to create and sync your business data in real-time. This keeps your data accessible and editable directly in your sheets.',
+  },
+  {
+    icon: FileSpreadsheet,
+    title: 'Profile Information',
+    purpose: 'Account setup',
+    details: 'We collect your name, email, and profile image to set up your account and personalize your workspace.',
+  },
+  {
+    icon: Lock,
+    title: 'Data Protection',
+    purpose: 'Security & privacy',
+    details: 'All your data is encrypted, stored securely, and never sold to third parties. You own your data and can export or delete it anytime.',
   },
 ];
 
@@ -606,6 +636,67 @@ export default function Landing() {
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ DATA & PRIVACY TRANSPARENCY ═══════════════ */}
+      <section className="landing-section landing-section--alt" aria-labelledby="privacy-heading">
+        <div className="landing-section__inner">
+          <Reveal>
+            <div className="landing-section__header">
+              <div className="landing-eyebrow">
+                <Info size={14} />
+                Data & Privacy
+              </div>
+              <h2 id="privacy-heading" className="landing-section__title">
+                Your data, your control.
+                <br />
+                <span className="landing-section__title-gradient">Complete transparency.</span>
+              </h2>
+              <p className="landing-section__sub">
+                We're transparent about what we collect and why. You're in control of your data at all times, and you can revoke access or delete your account anytime.
+              </p>
+            </div>
+          </Reveal>
+
+          <div className="landing-privacy__grid">
+            {DATA_PERMISSIONS.map((item, i) => (
+              <Reveal key={item.title} delay={i * 0.06}>
+                <div className="landing-privacy-card">
+                  <div className="landing-privacy-card__header">
+                    <div className="landing-privacy-card__icon">
+                      <item.icon size={20} />
+                    </div>
+                    <span className="landing-privacy-card__badge">{item.purpose}</span>
+                  </div>
+                  <h3 className="landing-privacy-card__title">{item.title}</h3>
+                  <p className="landing-privacy-card__desc">{item.details}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={0.3}>
+            <div className="landing-privacy__footer">
+              <p>
+                For full details, see our{' '}
+                <button
+                  className="landing-privacy__link"
+                  onClick={() => navigate('/privacy')}
+                >
+                  Privacy Policy
+                </button>
+                {' '}and{' '}
+                <button
+                  className="landing-privacy__link"
+                  onClick={() => navigate('/terms')}
+                >
+                  Terms of Service
+                </button>
+                .
+              </p>
+            </div>
+          </Reveal>
         </div>
       </section>
 
