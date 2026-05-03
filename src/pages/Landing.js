@@ -213,8 +213,14 @@ function Reveal({ children, delay = 0, y = 32 }) {
 ───────────────────────────────────────── */
 export default function Landing() {
   const navigate = useNavigate();
-  const { isDark, toggle } = useTheme();
+  const { setTheme } = useTheme();
   const heroRef = useRef(null);
+
+  useEffect(() => {
+    if (setTheme) {
+      setTheme('dark');
+    }
+  }, [setTheme]);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '18%']);
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.96]);
@@ -233,6 +239,46 @@ export default function Landing() {
   useEffect(() => {
     const t = setInterval(() => setActiveTestimonial(i => (i + 1) % TESTIMONIALS.length), 4800);
     return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    const handleHeroParallax = () => {
+      const bgImage = document.querySelector('.landing-hero-bg__image');
+      if (!bgImage) return;
+
+      // Disable parallax on mobile devices for better performance
+      if (window.innerWidth < 768) {
+        bgImage.style.transform = 'translateY(0)';
+        return;
+      }
+
+      const scrollPercent = window.scrollY / window.innerHeight;
+      const offset = scrollPercent * 20;
+
+      bgImage.style.transform = `translateY(${offset}px)`;
+    };
+
+    window.addEventListener('scroll', handleHeroParallax, { passive: true });
+    return () => window.removeEventListener('scroll', handleHeroParallax);
+  }, []);
+
+  useEffect(() => {
+    const handleParallax = () => {
+      const bgElement = document.querySelector('.landing-testimonials-bg__image');
+      if (!bgElement) return;
+
+      const element = bgElement.closest('.landing-testimonials-section');
+      if (!element) return;
+
+      const rect = element.getBoundingClientRect();
+      const scrollPercent = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
+      const offset = scrollPercent * 30;
+
+      bgElement.style.transform = `translateY(${offset}px) scale(1.05)`;
+    };
+
+    window.addEventListener('scroll', handleParallax, { passive: true });
+    return () => window.removeEventListener('scroll', handleParallax);
   }, []);
 
   return (
@@ -277,13 +323,6 @@ export default function Landing() {
 
           {/* CTA Actions */}
           <div className="landing-nav__actions">
-            <button
-              onClick={toggle}
-              className="landing-nav__theme-btn"
-              aria-label="Toggle theme"
-            >
-              {isDark ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
             <button
               className="landing-btn landing-btn--primary"
               onClick={() => navigate('/login')}
@@ -338,6 +377,16 @@ export default function Landing() {
 
       {/* ═══════════════ HERO ═══════════════ */}
       <section ref={heroRef} className="landing-hero" aria-label="Hero section">
+        {/* Background Image with Parallax */}
+        <div className="landing-hero-bg">
+          <img 
+            src="/image1.jpg" 
+            alt="Background" 
+            className="landing-hero-bg__image"
+          />
+          <div className="landing-hero-bg__overlay" />
+        </div>
+
         <motion.div
           className="landing-hero__content"
           style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
@@ -619,22 +668,34 @@ export default function Landing() {
             </div>
           </Reveal>
 
-          <div className="landing-steps">
-            {HOW_IT_WORKS.map((step, i) => (
-              <Reveal key={step.num} delay={i * 0.15}>
-                <div className="landing-step">
-                  <div className="landing-step__number">{step.num}</div>
-                  {i < HOW_IT_WORKS.length - 1 && (
-                    <div className="landing-step__connector" aria-hidden="true" />
-                  )}
-                  <div className="landing-step__icon">
-                    <step.icon size={24} />
+          <div className="landing-how-split">
+            <div className="landing-steps-vertical">
+              {HOW_IT_WORKS.map((step, i) => (
+                <Reveal key={step.num} delay={i * 0.15}>
+                  <div className="landing-step-v">
+                    <div className="landing-step-v__left">
+                      <div className="landing-step-v__icon">
+                        <step.icon size={24} />
+                      </div>
+                      {i < HOW_IT_WORKS.length - 1 && (
+                        <div className="landing-step-v__connector" aria-hidden="true" />
+                      )}
+                    </div>
+                    <div className="landing-step-v__right">
+                      <div className="landing-step-v__number">{step.num}</div>
+                      <h3 className="landing-step-v__title">{step.title}</h3>
+                      <p className="landing-step-v__desc">{step.desc}</p>
+                    </div>
                   </div>
-                  <h3 className="landing-step__title">{step.title}</h3>
-                  <p className="landing-step__desc">{step.desc}</p>
-                </div>
-              </Reveal>
-            ))}
+                </Reveal>
+              ))}
+            </div>
+
+            <Reveal delay={0.3}>
+              <div className="landing-how-image">
+                <img src="/image2.jpg" alt="LibasTrack flow" />
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
